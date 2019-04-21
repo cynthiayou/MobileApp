@@ -9,8 +9,31 @@ mongoose.connection.on("connected", () => {
 })
 
 router.get("/", (req, res, next) => {
-    Product.find({}, (err, doc)=>{
-        console.log("hello");
+    let page = parseInt(req.param("page"));
+    let pageSize = parseInt(req.param("pageSize"));
+    let priceLevel = req.param("priceLevel");
+    let sort = req.param("sort");    
+    let priceGt = '';
+    let priceLte = '';
+    let params = {};
+
+    if (priceLevel != "all"){
+        switch(priceLevel){
+            case '0':priceGt = 0; priceLte = 500; break;
+            case '1':priceGt = 500; priceLte = 1000; break;
+            case '2':priceGt = 1000; priceLte = 5000; break;
+        }
+        params = {
+            price: {
+                $gt: priceGt,
+                $lte: priceLte
+            }
+        }
+    } 
+
+    let productsModel = Product.find(params).skip((page - 1) * pageSize).limit(pageSize);;
+    productsModel.sort({'price': sort});
+    productsModel.exec((err, doc)=>{
         if (err){
             res.json({
                 status: '1',

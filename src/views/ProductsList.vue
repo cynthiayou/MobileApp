@@ -7,17 +7,17 @@
                     <span class="sortby">Sort by:</span>
                     <a href="javascript:void(0)" class="default cur">Default</a>
                     <!-- <span class="def">Default</span> -->
-                    <a href="javascript:void(0)" class="price" >Price <img id="arrow" src="/static/loading-arrow.svg" alt=""></a>
-                    <a href="javascript:void(0)" class="filterby stopPop" >Filter by</a>
+                    <a href="javascript:void(0)" class="price" @click="sortProducts">Price <img id="arrow" src="/static/loading-arrow.svg" alt=""></a>
+                    <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
                 </div>
                 <div class="accessory-result">
                     <!-- filter -->
                     <div class="filter stopPop" id="filter" v-bind:class="{'filterby-show':filterBy}">
                         <dl class="filter-price">
                         <dt>Price:</dt>
-                        <dd><a href="javascript:void(0)"  >All</a></dd>
+                        <dd><a href="javascript:void(0)"  @click="setPriceAll" v-bind:class="{'cur':priceLevel=='all'}" >All</a></dd>
                         <dd v-for="(price, index) in priceFilter"> 
-                            <a href="javascript:void(0)"  >{{price.startPrice}} - {{price.endPrice}}</a>
+                            <a href="javascript:void(0)" @click="setPriceFilter(index)" v-bind:class="{'cur':priceLevel==index}" >{{price.startPrice}} - {{price.endPrice}}</a>
                         </dd>
                         </dl>
                     </div>
@@ -37,7 +37,7 @@
                                         <div class="color">Color:{{item.color}}</div>
                                         <div class="inventory">Qty in stock:{{item.inventory}}</div>
                                         <div class="btn-area">
-                                            <a href="javacript:void(0)" class="btn btn--m">Add to cart</a>
+                                            <a href="javacript:void(0)" class="btn btn--m" @click="addCart(item._id)">Add to cart</a>
                                         </div>
                                     </div>
                                 </li>
@@ -65,6 +65,12 @@
         data () {
             return {
                 productsList:[],
+                sortFlag: true,
+                page:1,
+                pageSize:8,
+                busy:true,
+                show:true,
+                loading:false,
                 priceFilter:[
                     {
                         startPrice: '0.00',
@@ -78,19 +84,97 @@
                         startPrice: '1000.00',
                         endPrice: '5000.00',                        
                     }
-                ]
+                ],
+                priceLevel: 'all',
+                filterBy:false,
+                overLayFlag: false
             }
         },
-        mounted(){
-            axios.get("/products").then((response) => {
-                let res = response.data;
-                if (res.status == '0'){
-                    this.productsList = res.result.list;
-                } else {
-                    this.productsList = [];
-                }
-            })
+        mounted: function(){
+                this.getProductsList();
         },
+        methods: {
+            getProductsList(flag){
+                let param = {
+                    page: this.page,
+                    pageSize: this.pageSize,
+                    sort: this.sortFlag? 1 : -1,
+                    priceLevel: this.priceLevel
+                  }
+                this.loading = true;
+                axios.get("/products", {
+                    params: param
+                }).then(response => {
+                        let res = response.data;
+                        this.loading = false;
+                        if(res.status=="0"){
+                            if (flag){
+                                this.productsList = this.productsList.concat(res.result.list);
+                                if (res.result.count < 8 ){
+                                    this.busy = true;
+                                    this.show = false;
+                                } else{
+                                    this.busy = false;
+                                }
+                            }else{
+                                this.productsList = res.result.list;
+                                this.busy = false;
+                            }
+                        }else{
+                            this.productsList = [];
+                        }                    
+                    });
+            },
+
+            loadMore(){
+                this.busy = true;  
+                this.show = true;
+                setTimeout(() => {
+                    this.page++;
+                    this.getProductsList(true);
+                }, 500);
+            },
+
+            sortProducts(){
+                this.sortFlag = !this.sortFlag;
+                this.page=1;
+                this.getProductsList();
+            },
+
+            showFilterPop(){
+                this.filterBy = true;
+                this.overLayFlag = true;
+            },
+            setPriceAll(){
+                this.priceLevel='all';
+                this.page = 1;
+                this.getProductsList();
+                this.closePop();
+            },            
+            setPriceFilter(index){
+                this.priceLevel = index;
+                this.page = 1;
+                this.getProductsList();
+                this.closePop();
+            },
+            closePop(){
+                this.filterBy = false;
+                this.overLayFlag = false;
+            },
+            addCart(id){
+                axios.post("/products/addCart", {
+                    productId:id
+                }).then(res => {
+                    if (res.data.status == '0'){
+                        alert("Added successfully!");
+                    }
+                    else{
+                        alert("msg:"+res.msg);
+                    }
+                });
+            }
+        },            
+
         components:{
             NavHeader,
             NavFooter,
