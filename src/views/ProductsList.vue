@@ -7,7 +7,7 @@
                     <span class="sortby">Sort by:</span>
                     <a href="javascript:void(0)" class="default cur">Default</a>
                     <!-- <span class="def">Default</span> -->
-                    <a href="javascript:void(0)" class="price" @click="sortProducts">Price <img id="arrow" src="/static/loading-arrow.svg" alt=""></a>
+                    <a href="javascript:void(0)" class="price" @click="sortProducts">Price <img id="arrow" src="/static/loading-arrow.svg" v-bind:class="{'sort-up': sortFlag}" alt=""></a>
                     <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
                 </div>
                 <div class="accessory-result">
