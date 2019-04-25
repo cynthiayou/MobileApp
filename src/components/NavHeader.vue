@@ -27,10 +27,10 @@
             </div>
             <div class="navbar-right-container" style="display: flex;">
               <div class="navbar-menu-container">
-                <span class="navbar-link" v-text="userLoggedIn" v-if="userLoggedIn"></span>
+                <span class="navbar-link" v-if="userLoggedIn">Welcome,{{userLoggedIn}}</span>
                 <a href="javascript:void(0)" class="navbar-link"  v-if="!userLoggedIn">SignUp</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!userLoggedIn">Login</a>
-                <a href="javascript:void(0)" class="navbar-link" v-if="userLoggedIn">Logout</a>
+                <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="userLoggedIn">Logout</a>
                 <div class="navbar-cart-container">
                   <!-- <span class="navbar-cart-count" v-if="cartCount>0">{{cartCount}}</span> -->
                   <a class="navbar-link navbar-cart-link" href="/#/cart">
@@ -86,7 +86,7 @@
                 userPwd: '',
                 errorTip: false,
                 loginModalFlag: false,
-                userLoggedIn: '',
+                userLoggedIn: '',  //store userName if the user is logged in
             }
         },
         // mounted(){
@@ -101,6 +101,10 @@
           //   }
           // })
           login(){
+            if (!this.userName || !this.userPwd){
+              this.errorTip = true;
+              return;
+            }
             axios.post("/users/login", {
               userName: this.userName,
               userPwd: this.userPwd
@@ -113,6 +117,15 @@
                 this.userLoggedIn = res.result.userName;
               } else{
                 this.errorTip = true;
+              }
+            })
+          },
+
+          logout(){
+            axios.post("/users/logout").then(response => {
+              let res = response.data;
+              if (res.status == "0"){
+                this.userLoggedIn="";                
               }
             })
           }
