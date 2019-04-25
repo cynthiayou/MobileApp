@@ -20,7 +20,7 @@ router.post('/login', function(req, res, next) {
       })
     } else{
       if (userDoc){
-        res.cookie("userId", userDoc.userId, {
+        res.cookie("userId", userDoc._id, {
           path: '/',
           maxAge: 1000*60*60   //One hour
         });

@@ -31,6 +31,7 @@
                 <a href="javascript:void(0)" class="navbar-link"  v-if="!userLoggedIn">SignUp</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!userLoggedIn">Login</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="userLoggedIn">Logout</a>
+    
                 <div class="navbar-cart-container">
                   <!-- <span class="navbar-cart-count" v-if="cartCount>0">{{cartCount}}</span> -->
                   <a class="navbar-link navbar-cart-link" href="/#/cart">

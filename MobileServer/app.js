@@ -24,6 +24,25 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+  if (req.cookies.userId){
+    console.log("yes");
+    next();
+  } else {
+    console.log(req.originalUrl);
+    console.log(req.originalUrl.indexOf("/products/list") );
+    if (req.originalUrl.indexOf("/products/list") > -1 || req.originalUrl == "/users/login" || req.originalUrl == "/users/signup" || req.originalUrl == "/users/logout"){
+      next();
+    } else {
+      res.json({
+        status: "10001",
+        msg: "Please log in first!",
+        result: ""
+      });
+    }
+  }
+})
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

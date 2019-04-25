@@ -37,7 +37,7 @@
                                         <div class="color">Color:{{item.color}}</div>
                                         <div class="inventory">Qty in stock:{{item.inventory}}</div>
                                         <div class="btn-area">
-                                            <a href="javacript:void(0)" class="btn btn--m" @click="addCart(item._id)">Add to cart</a>
+                                            <a href="javacript:;" class="btn btn--m" @click="addCart(item._id)">Add to cart</a>
                                         </div>
                                     </div>
                                 </li>
@@ -102,7 +102,7 @@
                     priceLevel: this.priceLevel
                   }
                 this.loading = true;
-                axios.get("/products", {
+                axios.get("/products/list", {
                     params: param
                 }).then(response => {
                         let res = response.data;
@@ -163,13 +163,15 @@
             },
             addCart(id){
                 axios.post("/products/addCart", {
+                    // userId: $cookies.get("userId"),
                     productId:id
-                }).then(res => {
-                    if (res.data.status == '0'){
+                }).then(response => {
+                    var res = response.data;
+                    if (res.status == '0'){
                         alert("Added successfully!");
                     }
                     else{
-                        alert("msg:"+res.msg);
+                        alert("msg: "+res.msg);
                     }
                 });
             }
