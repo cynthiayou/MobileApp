@@ -71,37 +71,45 @@ router.post("/addCart", (req, res, next) => {
             })
         } else {
             if (userDoc){
-                var product = "";
-                userDoc.cartList.forEach((item) => {
-                    if (item._id == productId){
-                        product = item;
-                        item.productNum++;
-                    }
-                });
-                if (product){
-                    userDoc.save((err2, doc2) => {
-                        if (err2){
-                            res.json({
-                                status: "1",
-                                msg: err2.message
-                            })
-                        }else{
-                            res.json({
-                                status: "0",
-                                msg: '',
-                                result:'success'
-                            })
-                        }
-                    })
-                } else {
-                    Product.findOne({_id: productId}, (err3, doc) => {
-                        if (err3){
-                            res.json({
-                                status: "1",
-                                msg: err3.message
-                            })
-                        } else {
-                            if (doc){
+                Product.findOne({_id: productId}, (err3, productDoc) => {
+                    if (err3){
+                        res.json({
+                            status: "1",
+                            msg: err3.message
+                        })
+                    } else {
+                        if (productDoc){
+                            if (productDoc.inventory == 0){
+                                res.json({
+                                    status: "1",
+                                    msg: "Out of stock"
+                                }) 
+                            } else{
+                                productDoc.inventory--;
+                            };
+                            found = false;
+                            userDoc.cartList.forEach((item) => {
+                                if (item._id == productId){
+                                    found = true;
+                                    item.productNum++;
+                                }
+                            });
+                            if (found){
+                                userDoc.save((err2, doc2) => {
+                                    if (err2){
+                                        res.json({
+                                            status: "1",
+                                            msg: err2.message
+                                        })
+                                    }else{
+                                        res.json({
+                                            status: "0",
+                                            msg: '',
+                                            result:'success'
+                                        })
+                                    }
+                                })
+                            } else {
                                 userDoc.cartList.push({
                                     "_id": doc._id,
                                     "name": doc.name,
@@ -124,10 +132,10 @@ router.post("/addCart", (req, res, next) => {
                                         })
                                     }
                                 })
-                            }
+                            }                            
                         }
-                    });
-                }
+                    }
+                });
             }
         }
     })

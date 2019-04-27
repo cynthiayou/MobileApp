@@ -22,8 +22,12 @@ router.post('/login', function(req, res, next) {
       if (userDoc){
         res.cookie("userId", userDoc._id, {
           path: '/',
-          maxAge: 1000*60*60   //One hour
+          maxAge: 1000*60*20   //20 minutes
         });
+        res.cookie("userName",userDoc.userName, {
+          path:'/',
+          maxAge: 1000*60*20   //20 minutes
+        })
         // req.session.user = userDoc;
         res.json({
           status: '0',
@@ -54,5 +58,44 @@ router.post('/logout', function(req, res, next) {
   });
 });
 
+router.get("/checkLogin", function (req,res,next) {
+  if(req.cookies.userId){
+      console.log(req.cookies.userId);
+      console.log(req.cookies.userName);
+      res.json({
+        status:'0',
+        msg:'',
+        result:req.cookies.userName || ''
+      });
+  }else{
+    res.json({
+      status:'1',
+      msg:'Not logged in',
+      result:''
+    });
+  }
+});
+
+
+router.get("/cartList", function (req,res,next) {
+  var userId = req.cookies.userId;
+  User.findOne({_id:userId}, function (err,doc) {
+      if(err){
+        res.json({
+          status:'1',
+          msg:err.message,
+          result:''
+        });
+      }else{
+          if(doc){
+            res.json({
+              status:'0',
+              msg:'',
+              result:doc.cartList
+            });
+          }
+      }
+  });
+});
 module.exports = router;
    

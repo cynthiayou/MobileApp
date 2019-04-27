@@ -90,17 +90,19 @@
                 userLoggedIn: '',  //store userName if the user is logged in
             }
         },
-        // mounted(){
-        //   this.checkLogin();
-        // },
+        mounted(){
+          this.checkLogin();
+        },
         methods: {
-          // axios.get("/users/checkLogin").then((response) => {
-          //   var res = response.data;
-          //   var path = this.$route.pathname;
-          //   if (res.status="0"){
-          //     this.
-          //   }
-          // })
+          checkLogin(){
+                axios.get("/users/checkLogin").then((response)=>{
+                    var res = response.data;
+                    if(res.status=="0"){
+                      this.userLoggedIn = res.result;
+                      this.loginModalFlag = false;
+                    }
+                });
+          },
           login(){
             if (!this.userName || !this.userPwd){
               this.errorTip = true;

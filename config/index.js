@@ -14,7 +14,7 @@ module.exports = {
       '/products':{
         target:'http://localhost:3000'
       },
-      '/goods/*':{
+      '/products/*':{
         target:'http://localhost:3000'
       },
       '/users/*':{

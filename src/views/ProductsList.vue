@@ -50,6 +50,24 @@
                 </div>
             </div>
         </div>
+        <modal v-bind:mdShow="mdShow" v-on:close="closeModal">
+            <h3 slot="message">Please log in first before adding to cart!</h3>
+            <div slot="btnGroup">
+                <a class="btn btn--m" href="javascript:;" @click="mdShow=false">Close</a>
+            </div>
+        </modal>
+        <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
+            <h3 slot="message">
+                <svg class="icon-status-ok">
+                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-status-ok"></use>
+                </svg>
+                <span>Added to cart successfully!</span>
+            </h3>
+            <div slot="btnGroup">
+                <a class="btn btn--m" style="font-size: 12px;" href="javascript:;" @click="mdShowCart=false" >Continue shopping</a>
+                <router-link class="btn btn--m" style="font-size: 12px;" href="javascript:;" to="/cart">Go to cart</router-link>
+            </div>
+        </modal>
         <nav-footer></nav-footer>
     </div>
 </template>
@@ -60,6 +78,7 @@
 
     import NavHeader from "./../components/NavHeader"
     import NavFooter from "./../components/NavFooter"
+    import Modal from "./../components/Modal"
     import axios from "axios"
     export default {
         data () {
@@ -71,6 +90,8 @@
                 busy:true,
                 show:true,
                 loading:false,
+                mdShow:false,
+                mdShowCart: false,
                 priceFilter:[
                     {
                         startPrice: '0.00',
@@ -168,18 +189,24 @@
                 }).then(response => {
                     var res = response.data;
                     if (res.status == '0'){
-                        alert("Added successfully!");
+                        this.mdShowCart = true;
                     }
                     else{
-                        alert("msg: "+res.msg);
+                        this.mdShow = true;
+                        // alert("msg: "+res.msg);
                     }
                 });
+            },
+            closeModal(){
+                this.mdShow = false;
+                this.mdShowCart = false;
             }
         },            
 
         components:{
             NavHeader,
             NavFooter,
+            Modal,
         }
     }
 </script>
@@ -197,4 +224,5 @@
     line-height:100px;
     text-align: center;
 }
+
 </style>
