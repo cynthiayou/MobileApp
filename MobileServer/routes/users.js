@@ -38,7 +38,7 @@ router.post('/login', function(req, res, next) {
         })
       } else {
         res.json({
-          status: '0',
+          status: '1',
           msg: 'No user found!',
       })
       }
@@ -58,6 +58,32 @@ router.post('/logout', function(req, res, next) {
   });
 });
 
+router.post("/checkEmail", function (req,res,next) {
+  const params = {
+    email: req.body.email
+  }
+  User.findOne(params, (err, userDoc) => {
+    if (err){
+      res.json({
+        status: '1',
+        msg: err.message,
+      })
+    } else{
+      if (userDoc){
+        res.json({
+          status: '1',
+          msg: 'Email already exists',
+        })
+      } else {
+        res.json({
+          status: '0',
+          msg: 'email is available',
+      })
+      }
+    }
+  })
+});
+
 router.get("/checkLogin", function (req,res,next) {
   if(req.cookies.userId){
       console.log(req.cookies.userId);
@@ -75,6 +101,7 @@ router.get("/checkLogin", function (req,res,next) {
     });
   }
 });
+
 
 
 router.get("/cartList", function (req,res,next) {

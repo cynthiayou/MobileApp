@@ -30,7 +30,7 @@ app.use((req, res, next) => {
   } else {
     console.log(req.originalUrl);
     console.log(req.originalUrl.indexOf("/products/list") );
-    if (req.originalUrl.indexOf("/products/list") > -1 || req.originalUrl == "/users/login" || req.originalUrl == "/users/signup" || req.originalUrl == "/users/logout"){
+    if (req.originalUrl.indexOf("/products/list") > -1 || req.originalUrl == "/users/login" || req.originalUrl == "/users/signup" || req.originalUrl == "/users/checkEmail" || req.originalUrl == "/users/logout"){
       next();
     } else {
       res.json({

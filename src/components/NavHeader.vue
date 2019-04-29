@@ -58,41 +58,26 @@
                   <table>
                       <tr>
                           <td style="text-align: left;"><label for="username">Username:</label></td>
-                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="signupName" id="signupName" @focus='showNameSpan' @blur="checkName"></td>
-                          <td style="text-align: center; font-size:0.8em;" v-show="nameTip"><span id="nameSpan"></span></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="signupName" id="signupName" @focus="showNameSpan" @blur="checkName"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="nameSpan"></span></td>
                       </tr>
                       <tr>
                           <td style="text-align: left;"><label for="email">Email:</label></td>
-                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="email" id="email"></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="email" id="email" @focus="showEmailSpan" @blur="checkEmail"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="emailSpan"></span></td>
                       </tr>
                       <tr>
                           <td style="text-align: left;"><label for="password">Password:</label></td>
-                          <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd1"></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd1" @focus="showPwdSpan1" @blur="checkPwd1"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="pwdSpan1"></span></td>
                       </tr>
                       <tr>
                           <td style="text-align: left;"><label for="password">Repeat Password:</label></td>
-                          <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd2"></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd2" @focus="showPwdSpan2" @blur="checkPwd2"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="pwdSpan2"></span></td>
                       </tr>                      
                   </table>
               </form>
-                <!-- <ul>
-                  <li class="regi_form_input">
-                    <i class="icon IconPeople"></i>
-                    <input type="text" tabindex="1" name="loginname" v-model="signupName" class="regi_login_input regi_login_input_left" placeholder="username" data-type="loginname">
-                  </li>
-                  <li class="regi_form_input">
-                    <i class="icon IconPeople"></i>
-                    <input type="text" tabindex="2" name="loginname" v-model="email" class="regi_login_input regi_login_input_left" placeholder="email" data-type="loginname">
-                  </li>
-                  <li class="regi_form_input noMargin">
-                    <i class="icon IconPwd"></i>
-                    <input type="password" tabindex="3" name="password1" v-model="signupPwd1" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="password" >
-                  </li>
-                  <li class="regi_form_input noMargin">
-                    <i class="icon IconPwd"></i>
-                    <input type="password" tabindex="4" name="password2" v-model="signupPwd2" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="Repeat password" @keyup.enter="signup">
-                  </li>
-                </ul> -->
               </div>
               <div class="login-wrap">
                 <a href="javascript:void(0)" class="btn-login" @click="signup">Sign up</a>
@@ -144,11 +129,12 @@
                 userPwd: '',
                 errorTip: false,
                 emailErrorTip: false,
-                nameTip: false,
+                // nameTip: false,
                 loginModalFlag: false,
                 signupModalFlag: false,
-                signupPwd1: '',
-                signupPwd2: '',
+                signupName: '',
+                signupEmail:'',
+                signupPwd: '',
                 userLoggedIn: '',  //store userName if the user is logged in
             }
         },
@@ -196,16 +182,82 @@
           },
 
           showNameSpan(){
-            this.nameTip = true;
-            $(nameSpan).text("Username must contain only alphabetical or numeric characters.")
+            // this.nameTip = true;
+            $("#nameSpan").text("Username must contain only alphabetical or numeric characters.")
                       .attr("class", "info")
                       .show();
+          },
 
+          showEmailSpan(){
+            $("#emailSpan").text("Email field should be a valid email address (abc@def.xyz).")
+                      .attr("class", "info")
+                      .show();
+          },
+
+          showPwdSpan1(){
+            $("#pwdSpan1").text("Password must be at least eight characters including one uppercase letter, one special character and alphanumeric characters.")
+                      .attr("class", "info")
+                      .show();
+          },
+
+          showPwdSpan2(){
+            $("#pwdSpan2").text("Please confirm your password.")
+                      .attr("class", "info")
+                      .show();
           },
 
           checkName(){
-            this.nameTip = false;
-            $(nameSpan).text("ok");
+            // this.nameTip = false;
+            this.signupName = $("#signupName").val();
+            if (!this.signupName){
+              $("#nameSpan").hide();
+            }else if (/^[a-zA-Z0-9]+$/.test(this.signupName)){
+              $("#nameSpan").text("OK").attr("class", "ok").show();
+            }else{
+              $("#nameSpan").text("Error").attr("class", "error").show();
+            }
+          },
+
+          checkEmail(){
+            this.signupEmail = $("#email").val();
+            if (!this.signupEmail){
+              $("#emailSpan").hide();
+            } else if (/^[a-zA-Z0-9]+@[a-zA-Z0-9]+.[a-zA-Z0-9]{3,3}$/.test(this.signupEmail)){
+              axios.post("/users/checkEmail", {
+                email: this.signupEmail,
+              }).then((response)=>{
+                    var res = response.data;
+                    if(res.status=="0"){
+                      $("#emailSpan").text("OK").attr("class", "ok").show();
+                    }else {
+                      $("#emailSpan").text("Email already exists").attr("class", "error").show();
+                    }
+                });
+            } else{
+              $("#emailSpan").text("Error").attr("class", "error").show();
+            }
+          },
+
+          checkPwd1(){
+            this.signupPwd = $("#signupPwd1").val();
+            if (!this.signupPwd){
+              $("#pwdSpan1").hide();
+            } else if (this.signupPwd.length > 7 && this.signupPwd.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/) && this.signupPwd.match(/([!,%,&,@,#,$,^,*,?,_,~])/)){
+              $("#pwdSpan1").text("OK").attr("class", "ok").show();
+            } else{
+              $("#pwdSpan1").text("Error").attr("class", "error").show();
+            }
+          },
+
+          checkPwd2(){
+            let pwd2 = $("#signupPwd2").val();
+            if (!pwd2){
+              $("#pwdSpan2").hide();
+            } else if (pwd2 == this.signupPwd){
+              $("#pwdSpan2").text("OK").attr("class", "ok").show();
+            } else {
+              $("#pwdSpan2").text("Error").attr("class", "error").show();
+            }
           },
 
           signup(){
