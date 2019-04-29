@@ -5,7 +5,22 @@
             <div class="container">
                 <div class="filter-nav">
                     <span class="sortby">Sort by:</span>
-                    <a href="javascript:void(0)" class="default cur">Default</a>
+                    <select class="form-control" id="brandFilter" name="brandFilter" @change="onBrandChange($event)">
+                        <option value="all" selected="">All Brands</option>
+                        <option value="iPhone">iPhone</option>
+                        <option value="Google">Google</option>
+                        <option value="Samsung">Samsung</option>
+                        <option value="Huawei">Huawei</option>
+                    </select>
+                    <select class="form-control" id="memoryFilter" name="memoryFilter" @change="onGBChange($event)">
+                        <option value="all" selected="">Internal Storage</option>
+                        <option value="64GB">64GB</option>
+                        <option value="128G">128GB</option>
+                        <option value="256GB">256GB</option>
+                        <option value="256GB">512GB</option>
+                    </select>
+
+                    <!-- <a href="javascript:void(0)" class="default cur">Default</a> -->
                     <!-- <span class="def">Default</span> -->
                     <a href="javascript:void(0)" class="price" @click="sortProducts">Price <img id="arrow" src="/static/loading-arrow.svg" v-bind:class="{'sort-up': sortFlag}" alt=""></a>
                     <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
@@ -108,7 +123,9 @@
                 ],
                 priceLevel: 'all',
                 filterBy:false,
-                overLayFlag: false
+                overLayFlag: false,
+                brand: 'all',
+                internalStorage: "all"
             }
         },
         mounted: function(){
@@ -120,7 +137,9 @@
                     page: this.page,
                     pageSize: this.pageSize,
                     sort: this.sortFlag? 1 : -1,
-                    priceLevel: this.priceLevel
+                    priceLevel: this.priceLevel,
+                    brand: this.brand,
+                    internalStorage: this.internalStorage
                   }
                 this.loading = true;
                 axios.get("/products/list", {
@@ -200,6 +219,18 @@
             closeModal(){
                 this.mdShow = false;
                 this.mdShowCart = false;
+            },
+            onBrandChange(event){
+                console.log(event.target.value);
+                this.brand = event.target.value;
+                this.page=1;
+                // this.getProductsList();
+            },
+            onGBChange(event){
+                console.log(event.target.value);
+                this.internalStorage = event.target.value;
+                this.page=1;
+                // this.getProductsList();
             }
         },            
 
