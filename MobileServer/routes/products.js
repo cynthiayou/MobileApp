@@ -14,6 +14,8 @@ router.get("/list", (req, res, next) => {
     let pageSize = parseInt(req.param("pageSize"));
     let priceLevel = req.param("priceLevel");
     let sort = req.param("sort");    
+    let brand = req.param("brand");  
+    let internalStorage = req.param("internalStorage");
     let priceGt = '';
     let priceLte = '';
     let params = {};
@@ -24,6 +26,7 @@ router.get("/list", (req, res, next) => {
             case '1':priceGt = 500; priceLte = 1000; break;
             case '2':priceGt = 1000; priceLte = 5000; break;
         }
+        
         params = {
             price: {
                 $gt: priceGt,
@@ -31,6 +34,18 @@ router.get("/list", (req, res, next) => {
             }
         }
     } 
+    
+    if (brand != "all"){
+        if (brand == 'iPhone'){
+            params['brand'] = 'Apple';
+        } else{
+            params['brand'] = brand;
+        }        
+    }
+
+    if (internalStorage != "all"){
+        params['memory'] = internalStorage;
+    }    
 
     let productsModel = Product.find(params).skip((page - 1) * pageSize).limit(pageSize);;
     productsModel.sort({'price': sort});

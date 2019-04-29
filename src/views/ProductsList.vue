@@ -14,10 +14,10 @@
                     </select>
                     <select class="form-control" id="memoryFilter" name="memoryFilter" @change="onGBChange($event)">
                         <option value="all" selected="">Internal Storage</option>
-                        <option value="64GB">64GB</option>
-                        <option value="128G">128GB</option>
-                        <option value="256GB">256GB</option>
-                        <option value="256GB">512GB</option>
+                        <option value="64">64GB</option>
+                        <option value="128">128GB</option>
+                        <option value="256">256GB</option>
+                        <option value="512">512GB</option>
                     </select>
 
                     <!-- <a href="javascript:void(0)" class="default cur">Default</a> -->
@@ -224,13 +224,13 @@
                 console.log(event.target.value);
                 this.brand = event.target.value;
                 this.page=1;
-                // this.getProductsList();
+                this.getProductsList();
             },
             onGBChange(event){
                 console.log(event.target.value);
                 this.internalStorage = event.target.value;
                 this.page=1;
-                // this.getProductsList();
+                this.getProductsList();
             }
         },            
 
