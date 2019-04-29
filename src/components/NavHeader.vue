@@ -7,7 +7,7 @@
             </div>
             <div class="navbar-right-container" style="display: flex;">
               <div class="navbar-menu-container">
-                <span class="navbar-link" v-if="userLoggedIn">Welcome,{{userLoggedIn}}</span>
+                <span class="navbar-link" v-if="userLoggedIn" style="color:white;">Welcome,{{userLoggedIn}}</span>
                 <a href="javascript:void(0)" class="navbar-link" @click="signupModalFlag=true" v-if="!userLoggedIn">SignUp</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!userLoggedIn">Login</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="userLoggedIn">Logout</a>
@@ -35,7 +35,7 @@
                 <form class="signup">
                   <table>
                       <tr>
-                          <td style="text-align: left;"><label for="username">Username:</label></td>
+                          <td style="text-align: left;"><label for="signupName">Username:</label></td>
                           <td style="padding:0.3em; margin: 1em;"><input type="text" name="signupName" id="signupName" @focus="showNameSpan" @blur="checkName"></td>
                           <td style="text-align: left; font-size:0.8em;"><span id="nameSpan"></span></td>
                       </tr>
@@ -45,12 +45,12 @@
                           <td style="text-align: left; font-size:0.8em;"><span id="emailSpan"></span></td>
                       </tr>
                       <tr>
-                          <td style="text-align: left;"><label for="password">Password:</label></td>
+                          <td style="text-align: left;"><label for="signupPwd1">Password:</label></td>
                           <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd1" @focus="showPwdSpan1" @blur="checkPwd1"></td>
                           <td style="text-align: left; font-size:0.8em;"><span id="pwdSpan1"></span></td>
                       </tr>
                       <tr>
-                          <td style="text-align: left;"><label for="password">Repeat Password:</label></td>
+                          <td style="text-align: left;"><label for="signupPwd2">Repeat Password:</label></td>
                           <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd2" @focus="showPwdSpan2" @blur="checkPwd2"></td>
                           <td style="text-align: left; font-size:0.8em;"><span id="pwdSpan2"></span></td>
                       </tr>                                
@@ -77,11 +77,11 @@
                 <ul>
                   <li class="regi_form_input">
                     <i class="icon IconPeople"></i>
-                    <input type="text" tabindex="1" name="loginname" v-model="userName" class="regi_login_input regi_login_input_left" placeholder="username" data-type="loginname">
+                    <input type="text" tabindex="1"  v-model="userEmail" class="regi_login_input regi_login_input_left" placeholder="Email">
                   </li>
                   <li class="regi_form_input noMargin">
                     <i class="icon IconPwd"></i>
-                    <input type="password" tabindex="2" name="password" v-model="userPwd" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="password" @keyup.enter="login">
+                    <input type="password" tabindex="2"  v-model="userPwd" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="Password" @keyup.enter="login">
                   </li>
                 </ul>
               </div>
@@ -103,7 +103,7 @@
         name: 'NavHeader',
         data () {
             return {
-                userName: '',
+                userEmail: '',
                 userPwd: '',
                 errorTip: false,
                 signupErrorTip: false,
@@ -129,12 +129,12 @@
                 });
           },
           login(){
-            if (!this.userName || !this.userPwd){
+            if (!this.userEmail || !this.userPwd){
               this.errorTip = true;
               return;
             }
             axios.post("/users/login", {
-              userName: this.userName,
+              email: this.userEmail,
               userPwd: this.userPwd
             }).then(response => {
               let res = response.data;

@@ -4,6 +4,8 @@ var User = require('./../models/user');
 const bcrypt = require('bcrypt');
 
 
+
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -57,10 +59,11 @@ router.post('/signup', function(req, res, next) {
 });
 
 
-router.post('/login', function(req, res, next) {
+router.post('/login', (req, res, next) => {
+  console.log(bcrypt.hash('Admin@1234', 10));
+  const pwd = req.body.userPwd;
   const params = {
-    userName: req.body.userName,
-    userPwd: req.body.userPwd
+    email: req.body.email,
   }
   User.findOne(params, (err, userDoc) => {
     if (err){
@@ -70,22 +73,34 @@ router.post('/login', function(req, res, next) {
       })
     } else{
       if (userDoc){
-        res.cookie("userId", userDoc._id, {
-          path: '/',
-          maxAge: 1000*60*20   //20 minutes
-        });
-        res.cookie("userName",userDoc.userName, {
-          path:'/',
-          maxAge: 1000*60*20   //20 minutes
-        })
-        // req.session.user = userDoc;
-        res.json({
-          status: '0',
-          msg: '',
-          result:{
-            userName: userDoc.userName
-          }
-        })
+        bcrypt  
+          .compare(pwd, userDoc.userPwd)
+          .then((doMatch) => {
+            console.log("doMatch" + doMatch);
+            if(doMatch){
+              res.cookie("userId", userDoc._id, {
+                path: '/',
+                maxAge: 1000*60*20   //20 minutes
+              });
+              res.cookie("userName",userDoc.userName, {
+                path:'/',
+                maxAge: 1000*60*20   //20 minutes
+              })
+              // req.session.user = userDoc;
+              res.json({
+                status: '0',
+                msg: '',
+                result:{
+                  userName: userDoc.userName
+                }
+              })
+            } else{
+              res.json({
+                status: '1',
+                msg: 'Paaword is wrong!',
+              })
+            }            
+          })
       } else {
         res.json({
           status: '1',
@@ -93,7 +108,7 @@ router.post('/login', function(req, res, next) {
       })
       }
     }
-  })
+  })   
 });
 
 router.post('/logout', function(req, res, next) {
