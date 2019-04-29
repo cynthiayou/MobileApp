@@ -3,7 +3,7 @@
         <div class="navbar">
             <div class="navbar-left-container">
               <a href="/" class="navbar-link">Home</a>
-              <a href="/#/contact" class="navbar-link">Contact</a>
+              <a href="/#/contact" class="navbar-link" v-show="adminFlag">Add Product</a>
             </div>
             <div class="navbar-right-container" style="display: flex;">
               <div class="navbar-menu-container">
@@ -106,6 +106,7 @@
                 userEmail: '',
                 userPwd: '',
                 errorTip: false,
+                adminFlag: false,
                 signupErrorTip: false,
                 loginModalFlag: false,
                 signupModalFlag: false,
@@ -124,6 +125,9 @@
                     var res = response.data;
                     if(res.status=="0"){
                       this.userLoggedIn = res.result;
+                      if (this.userLoggedIn == "admin"){
+                        this.adminFlag = true;
+                      };
                       this.loginModalFlag = false;
                     }
                 });
@@ -143,6 +147,9 @@
                 this.errorTip = false;
                 this.loginModalFlag = false;
                 this.userLoggedIn = res.result.userName;
+                if (this.userLoggedIn == "admin"){
+                  this.adminFlag = true;
+                }
               } else{
                 this.errorTip = true;
               }
@@ -153,7 +160,8 @@
             axios.post("/users/logout").then(response => {
               let res = response.data;
               if (res.status == "0"){
-                this.userLoggedIn="";                
+                this.userLoggedIn = ""; 
+                this.adminFlag = false;              
               }
             })
           },
