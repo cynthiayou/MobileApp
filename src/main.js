@@ -3,11 +3,15 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import jquery from 'jquery' 
 import infiniteScroll from 'vue-infinite-scroll'
 
 Vue.config.productionTip = false
 
 Vue.use(infiniteScroll)
+Vue.use(jquery)
+
+window.$ = jquery
 
 /* eslint-disable no-new */
 new Vue({

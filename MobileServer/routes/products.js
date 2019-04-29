@@ -111,10 +111,10 @@ router.post("/addCart", (req, res, next) => {
                                 })
                             } else {
                                 userDoc.cartList.push({
-                                    "_id": doc._id,
-                                    "name": doc.name,
-                                    "price": doc.price,
-                                    "image": doc.image,
+                                    "_id": productDoc._id,
+                                    "name": productDoc.name,
+                                    "price": productDoc.price,
+                                    "image": productDoc.image,
                                     "productNum": 1,
                                     "checked": 1
                                 });

@@ -28,7 +28,7 @@
             <div class="navbar-right-container" style="display: flex;">
               <div class="navbar-menu-container">
                 <span class="navbar-link" v-if="userLoggedIn">Welcome,{{userLoggedIn}}</span>
-                <a href="javascript:void(0)" class="navbar-link"  v-if="!userLoggedIn">SignUp</a>
+                <a href="javascript:void(0)" class="navbar-link" @click="signupModalFlag=true" v-if="!userLoggedIn">SignUp</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!userLoggedIn">Login</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="userLoggedIn">Logout</a>
     
@@ -43,6 +43,63 @@
               </div>
             </div>
         </div>
+        <div class="md-modal modal-msg md-modal-transition" style="width:50%; height:auto;" v-bind:class="{'md-show':signupModalFlag}">
+          <div class="md-modal-inner">
+            <div class="md-top">
+                <div class='md-title'>Sign up</div>
+                <button class="md-close" @click="signupModalFlag=false">Close</button>
+            </div>
+            <div class="md-content">
+              <div class="confirm-tips">
+                <div class="error-wrap">
+                  <span class="error error-show" v-show="emailErrorTip">This email already exists. Choose another one!</span>
+                </div>
+                <form class="signup">
+                  <table>
+                      <tr>
+                          <td style="text-align: left;"><label for="username">Username:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="signupName" id="signupName" @focus='showNameSpan' @blur="checkName"></td>
+                          <td style="text-align: center; font-size:0.8em;" v-show="nameTip"><span id="nameSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="email">Email:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="email" id="email"></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="password">Password:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd1"></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="password">Repeat Password:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd2"></td>
+                      </tr>                      
+                  </table>
+              </form>
+                <!-- <ul>
+                  <li class="regi_form_input">
+                    <i class="icon IconPeople"></i>
+                    <input type="text" tabindex="1" name="loginname" v-model="signupName" class="regi_login_input regi_login_input_left" placeholder="username" data-type="loginname">
+                  </li>
+                  <li class="regi_form_input">
+                    <i class="icon IconPeople"></i>
+                    <input type="text" tabindex="2" name="loginname" v-model="email" class="regi_login_input regi_login_input_left" placeholder="email" data-type="loginname">
+                  </li>
+                  <li class="regi_form_input noMargin">
+                    <i class="icon IconPwd"></i>
+                    <input type="password" tabindex="3" name="password1" v-model="signupPwd1" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="password" >
+                  </li>
+                  <li class="regi_form_input noMargin">
+                    <i class="icon IconPwd"></i>
+                    <input type="password" tabindex="4" name="password2" v-model="signupPwd2" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="Repeat password" @keyup.enter="signup">
+                  </li>
+                </ul> -->
+              </div>
+              <div class="login-wrap">
+                <a href="javascript:void(0)" class="btn-login" @click="signup">Sign up</a>
+              </div>                
+            </div>                
+            </div>
+          </div>
         <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
           <div class="md-modal-inner">
             <div class="md-top">
@@ -67,18 +124,18 @@
               </div>
               <div class="login-wrap">
                 <a href="javascript:void(0)" class="btn-login" @click="login">Log In</a>
-              </div>
+              </div>        
             </div>                
             </div>
           </div>
-          <div class="md-overlay" v-if="loginModalFlag" @click="loginModalFlag=false"></div>
+          <div class="md-overlay" v-if="loginModalFlag || signupModalFlag" @click="loginModalFlag=false, signupModalFlag=false"></div>
     </header>
  
 </template>
 <script>
     import axios from 'axios'
-    // import './../assets/css/base.css'
     import './../assets/css/login.css'
+
     export default {
         name: 'NavHeader',
         data () {
@@ -86,7 +143,12 @@
                 userName: '',
                 userPwd: '',
                 errorTip: false,
+                emailErrorTip: false,
+                nameTip: false,
                 loginModalFlag: false,
+                signupModalFlag: false,
+                signupPwd1: '',
+                signupPwd2: '',
                 userLoggedIn: '',  //store userName if the user is logged in
             }
         },
@@ -131,6 +193,23 @@
                 this.userLoggedIn="";                
               }
             })
+          },
+
+          showNameSpan(){
+            this.nameTip = true;
+            $(nameSpan).text("Username must contain only alphabetical or numeric characters.")
+                      .attr("class", "info")
+                      .show();
+
+          },
+
+          checkName(){
+            this.nameTip = false;
+            $(nameSpan).text("ok");
+          },
+
+          signup(){
+            console.log("signing up");
           }
         }
     }
@@ -203,5 +282,20 @@
     width: 25px;
     height: 25px;
     transform: scaleX(-1);
+  }
+  .ok, .info, .error {
+      padding: 0px 2px;
+  }
+  .ok {
+    background: #cfc;
+    border: 2px solid #9c9;
+  }
+  .info {
+    background: #ffc;
+    /* border: 2px solid #cc9; */
+  }
+  .error {
+    background: #fcc;
+    border: 2px solid #c99;
   }
 </style>

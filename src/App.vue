@@ -7,7 +7,12 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  head: {
+        script: [
+            { src: "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" }
+        ]
+    }
 }
 </script>
 
@@ -21,3 +26,5 @@ export default {
   margin-top: 60px;
 }
 </style>
+export default {
+   
