@@ -52,7 +52,7 @@
             <div class="md-content">
               <div class="confirm-tips">
                 <div class="error-wrap">
-                  <span class="error error-show" v-show="emailErrorTip">This email already exists. Choose another one!</span>
+                  <span class="error error-show" v-show="signupErrorTip">A problem occurred during sign-up!</span>
                 </div>
                 <form class="signup">
                   <table>
@@ -75,7 +75,7 @@
                           <td style="text-align: left;"><label for="password">Repeat Password:</label></td>
                           <td style="padding:0.3em; margin: 1em;"><input type="password" name="signupPwd" id="signupPwd2" @focus="showPwdSpan2" @blur="checkPwd2"></td>
                           <td style="text-align: left; font-size:0.8em;"><span id="pwdSpan2"></span></td>
-                      </tr>                      
+                      </tr>                                
                   </table>
               </form>
               </div>
@@ -128,7 +128,7 @@
                 userName: '',
                 userPwd: '',
                 errorTip: false,
-                emailErrorTip: false,
+                signupErrorTip: false,
                 // nameTip: false,
                 loginModalFlag: false,
                 signupModalFlag: false,
@@ -261,7 +261,25 @@
           },
 
           signup(){
-            console.log("signing up");
+            axios.post("/users/signup", {
+              userName: this.signupName,
+              email: this.signupEmail,
+              userPwd: this.signupPwd,
+            }).then(response => {
+              let res = response.data;
+              // console.log(response);
+              if (res.status == "0"){
+                this.errorTip = false;
+                this.signupModalFlag = false;
+                this.loginModalFlag = true;
+              } else{
+                if (res.msg == 'Email already exists'){
+                  $("#emailSpan").text("Email already exists").attr("class", "error").show();
+                } else{
+                this.signupErrorTip = true;
+                }
+              }
+            })
           }
         }
     }

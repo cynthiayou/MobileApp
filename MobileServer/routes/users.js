@@ -1,11 +1,61 @@
 var express = require('express');
 var router = express.Router();
 var User = require('./../models/user');
+const bcrypt = require('bcrypt');
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
+
+router.post('/signup', function(req, res, next) {
+  User.findOne({email: req.body.email}, (err, userDoc) => {
+    if (err){
+      res.json({
+        status: '1',
+        msg: err.message,
+      })
+    } else{
+      if (userDoc){
+        res.json({
+          status: '1',
+          msg: 'Email already exists',
+        })
+      } else {
+        bcrypt
+          .hash(req.body.userPwd, 10)
+          .then(hashedPassword => {
+            const user = new User({
+              userName: req.body.userName,
+              email: req.body.email,
+              userPwd: hashedPassword,
+              orderList: [],
+              cartList: [],
+              addressList: []
+            });
+            console.log(user);
+            user.save((err, doc) => {
+              if (err){
+                  res.json({
+                      status: "1",
+                      msg: err.message
+                  })
+              }else{
+                  res.json({
+                      status: "0",
+                      msg: '',
+                      result:'success'
+                  })
+              }
+          })
+        })
+      }
+    }
+  })
+  
+});
+
 
 router.post('/login', function(req, res, next) {
   const params = {
