@@ -127,6 +127,7 @@
                       this.userLoggedIn = res.result;
                       if (this.userLoggedIn == "admin"){
                         this.adminFlag = true;
+                        this.$emit("admin");
                       };
                       this.loginModalFlag = false;
                     }
@@ -147,8 +148,10 @@
                 this.errorTip = false;
                 this.loginModalFlag = false;
                 this.userLoggedIn = res.result.userName;
+
                 if (this.userLoggedIn == "admin"){
                   this.adminFlag = true;
+                  this.$emit("admin");
                 }
               } else{
                 this.errorTip = true;
@@ -161,7 +164,8 @@
               let res = response.data;
               if (res.status == "0"){
                 this.userLoggedIn = ""; 
-                this.adminFlag = false;              
+                this.adminFlag = false;    
+                  
               }
             })
           },

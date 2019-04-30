@@ -18,8 +18,7 @@ router.get("/list", (req, res, next) => {
     let internalStorage = req.param("internalStorage");
     let priceGt = '';
     let priceLte = '';
-    let params = {};
-
+    let params = {deleted: false};
     if (priceLevel != "all"){
         switch(priceLevel){
             case '0':priceGt = 0; priceLte = 500; break;
@@ -27,12 +26,10 @@ router.get("/list", (req, res, next) => {
             case '2':priceGt = 1000; priceLte = 5000; break;
         }
         
-        params = {
-            price: {
+        params['price'] = {
                 $gt: priceGt,
                 $lte: priceLte
             }
-        }
     } 
     
     if (brand != "all"){
@@ -159,6 +156,25 @@ router.post("/addCart", (req, res, next) => {
 
     
 
+});
+
+router.post("/softDel", (req, res, next) => {
+    var productId = req.body.productId;
+    Product.delete({_id:productId}, (err, doc) => {
+        console.log("doc" + doc);
+        if (err){
+            res.json({
+                status: "1",
+                msg: err.message
+            })
+        } else{
+            res.json({
+                status: "0",
+                msg: '',
+                result:'success'
+            })
+        }
+    });
 });
 
 module.exports = router;

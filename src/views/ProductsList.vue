@@ -51,6 +51,10 @@
                                         <div class="memory">Memory:{{item.memory}}G</div>
                                         <div class="color">Color:{{item.color}}</div>
                                         <div class="inventory">Qty in stock:{{item.inventory}}</div>
+                                        <div v-show="adminFlag" v-on:admin="isAdmin">
+                                            <button type="button" class="btn btn-xs" >Edit</button>
+                                            <button type="button" class="btn btn-xs" @click="delConfirm(item)">Delete</button>
+                                        </div>
                                         <div class="btn-area">
                                             <a href="javacript:;" class="btn btn--m" @click="addCart(item._id)">Add to cart</a>
                                         </div>
@@ -89,6 +93,13 @@
                 <router-link class="btn btn--m" style="font-size: 12px;" href="javascript:;" to="/cart">Go to cart</router-link>
             </div>
         </modal>
+        <Modal :mdShow="modalConfirm" @close="modalConfirm = false">
+            <p slot="message">Are you sure you want to delete this item?</p>
+            <div slot="btnGroup">
+                <a class="btn btn--m" href="javascript:;" @click="softDel">Confirm</a>
+                <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm = false">Cancel</a>
+            </div>
+        </Modal>
         <nav-footer></nav-footer>
     </div>
 </template>
@@ -112,8 +123,11 @@
                 show:true,
                 loading:false,
                 mdShow:false,
+                adminFlag: false,
                 mdOutOfStock: false,
                 mdShowCart: false,
+                modalConfirm: false,
+                delItem:'',
                 priceFilter:[
                     {
                         startPrice: '0.00',
@@ -132,11 +146,12 @@
                 filterBy:false,
                 overLayFlag: false,
                 brand: 'all',
-                internalStorage: "all"
+                internalStorage: "all",
             }
         },
         mounted: function(){
                 this.getProductsList();
+                this.isAdmin();
         },
         methods: {
             getProductsList(flag){
@@ -239,6 +254,33 @@
                 this.internalStorage = event.target.value;
                 this.page=1;
                 this.getProductsList();
+            },
+            delConfirm(item){
+                this.delItem = item;
+                this.modalConfirm = true;
+            },
+            softDel(){                
+                axios.post("/products/softDel", {
+                    productId: this.delItem._id
+                }).then(response => {
+                    var res = response.data;
+                    if (res.status == '0'){
+                        this.modalConfirm = false;
+                        this.getProductsList();
+                    } else{
+                        alert("unable to delete this item.");
+                    }
+                });
+            },
+            isAdmin(){
+                var match = document.cookie.match(new RegExp('(^| )' + 'userName' + '=([^;]+)'));
+                if (match) {
+                    if (match[2] == "admin"){
+                        this.adminFlag = true;
+                    };
+                }
+                    
+                
             }
         },            
 
@@ -263,5 +305,16 @@
     line-height:100px;
     text-align: center;
 }
+.btn-xs {
+    height: 20px;
+    line-height: 10px;
+    margin-top:3px;
+    padding-left: .8em;
+    padding-right: .8em;
+    font-size: 10px;
+    letter-spacing: .1em;
+    margin-bottom: 0px;
+
+} 
 
 </style>
