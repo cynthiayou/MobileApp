@@ -78,82 +78,86 @@ router.get("/list", (req, res, next) => {
 router.post("/addCart", (req, res, next) => {
     var userId = req.cookies.userId;
     var productId = req.body.productId;
-    User.findOne({_id: userId}, (err, userDoc) => {
+    Product.findOne({_id: productId}, (err, productDoc) => {
         if (err){
             res.json({
                 status: "1",
                 msg: err.message
             })
         } else {
-            if (userDoc){
-                Product.findOne({_id: productId}, (err3, productDoc) => {
-                    if (err3){
-                        res.json({
-                            status: "1",
-                            msg: err3.message
-                        })
-                    } else {
-                        if (productDoc){
-                            if (productDoc.inventory == 0){
-                                res.json({
-                                    status: "1",
-                                    msg: "Out of stock"
-                                }) 
-                            } else{
-                                productDoc.inventory--;
-                            };
-                            found = false;
-                            userDoc.cartList.forEach((item) => {
-                                if (item._id == productId){
-                                    found = true;
-                                    item.productNum++;
-                                }
-                            });
-                            if (found){
-                                userDoc.save((err2, doc2) => {
-                                    if (err2){
-                                        res.json({
-                                            status: "1",
-                                            msg: err2.message
-                                        })
-                                    }else{
-                                        res.json({
-                                            status: "0",
-                                            msg: '',
-                                            result:'success'
-                                        })
+            if (productDoc){
+                product = productDoc;
+                if (productDoc.inventory <= 0){
+                    res.json({
+                        status: "2",
+                        msg: "Out of stock!"
+                    })
+                } else{
+                    User.findOne({_id: userId}, (err2, userDoc) => {
+                        if (err2){
+                            res.json({
+                                status: "1",
+                                msg: err2.message
+                            })
+                        } else {
+                            if (userDoc){
+                                found = false;
+                                userDoc.cartList.forEach((item) => {
+                                    if (item._id == productId){
+                                        found = true;
+                                        item.productNum++;
+                                        item.inventory = productDoc.inventory;
                                     }
-                                })
-                            } else {
-                                userDoc.cartList.push({
-                                    "_id": productDoc._id,
-                                    "name": productDoc.name,
-                                    "price": productDoc.price,
-                                    "image": productDoc.image,
-                                    "productNum": 1,
-                                    "checked": 1
                                 });
-                                userDoc.save((err4, doc2) => {
-                                    if (err4){
+                                if (!found){
+                                    userDoc.cartList.push({
+                                        "_id": productDoc._id,
+                                        "name": productDoc.name,
+                                        "price": productDoc.price,
+                                        "image": productDoc.image,
+                                        "inventory": productDoc.inventory,
+                                        "productNum": 1,
+                                        "checked": 1
+                                    });
+                                }
+                                userDoc.save((err3, doc3) => {
+                                    if (err3){
                                         res.json({
                                             status: "1",
-                                            msg: err4.message
+                                            msg: err3.message
                                         })
                                     }else{
-                                        res.json({
-                                            status: "0",
-                                            msg: '',
-                                            result:'success'
-                                        })
+                                        productDoc.inventory--;
+                                        productDoc.save((err4, doc4) => {
+                                            if (err4){
+                                                res.json({
+                                                    status: "1",
+                                                    msg: err4.message
+                                                })
+                                            } else{
+                                                res.json({
+                                                    status: "0",
+                                                    msg: '',
+                                                    result:'success'
+                                                })
+                                            }
+                                        });                                         
                                     }
-                                })
-                            }                            
+                                });
+                            }
                         }
-                    }
-                });
+                    })    
+                }              
+            }else{
+                res.json({
+                    status: "1",
+                    msg: "Product not found."
+                })
             }
         }
-    })
+    });
+
+    
 
 });
 

@@ -71,6 +71,12 @@
                 <a class="btn btn--m" href="javascript:;" @click="mdShow=false">Close</a>
             </div>
         </modal>
+        <modal v-bind:mdShow="mdOutOfStock" v-on:close="closeModal">
+            <h3 slot="message">Out of stock!</h3>
+            <div slot="btnGroup">
+                <a class="btn btn--m" href="javascript:;" @click="mdOutOfStock=false">Close</a>
+            </div>
+        </modal>
         <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
             <h3 slot="message">
                 <svg class="icon-status-ok">
@@ -106,6 +112,7 @@
                 show:true,
                 loading:false,
                 mdShow:false,
+                mdOutOfStock: false,
                 mdShowCart: false,
                 priceFilter:[
                     {
@@ -209,8 +216,9 @@
                     var res = response.data;
                     if (res.status == '0'){
                         this.mdShowCart = true;
-                    }
-                    else{
+                    } else if (res.status == '2'){
+                        this.mdOutOfStock = true;
+                    } else{
                         this.mdShow = true;
                         // alert("msg: "+res.msg);
                     }
