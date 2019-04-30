@@ -31,7 +31,7 @@
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img v-lazy="'/static/'+item.image" v-bind:alt="item.name">
+                    <img v-bind:src="'/static/'+item.image" v-bind:alt="item.name" style="height: 80%;">
                   </div>
                   <div class="cart-item-title">
                     <div class="item-name">{{item.name}}</div>
