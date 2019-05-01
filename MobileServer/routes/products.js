@@ -162,94 +162,74 @@ router.post("/addCart", (req, res, next) => {
 
 });
 
+router.get("/getProduct", (req, res, next) => {
+    let productId = req.param("productId");
+    Product.findOne({_id: productId},(err, productDoc) => {
+        if (err){
+            res.json({
+                status: "1",
+                msg: err.message
+            })
+        } else { 
+            if (productDoc){
+                res.json({
+                    status: "0",
+                    msg: '',
+                    result: {
+                        product: productDoc
+                    }                       
+                })
+            } else{
+                res.json({
+                    status: "0",
+                    msg: 'Product not found',
+                })
+                                
+            }
+        }
+    });
+});
 
 
 
-// router.post("/update", (req, res, next) => {
-//     var userId = req.cookies.userId;
-//     var productId = req.body.productId;
-//     Product.findOne({_id: productId}, (err, productDoc) => {
-//         if (err){
-//             res.json({
-//                 status: "1",
-//                 msg: err.message
-//             })
-//         } else {
-//             if (productDoc){
-//                 product = productDoc;
-//                 if (productDoc.inventory <= 0){
-//                     res.json({
-//                         status: "2",
-//                         msg: "Out of stock!"
-//                     })
-//                 } else{
-//                     User.findOne({_id: userId}, (err2, userDoc) => {
-//                         if (err2){
-//                             res.json({
-//                                 status: "1",
-//                                 msg: err2.message
-//                             })
-//                         } else {
-//                             if (userDoc){
-//                                 found = false;
-//                                 userDoc.cartList.forEach((item) => {
-//                                     if (item._id == productId){
-//                                         found = true;
-//                                         item.productNum++;
-//                                         --item.inventory;
-//                                     }
-//                                 });
-//                                 if (!found){
-//                                     userDoc.cartList.push({
-//                                         "_id": productDoc._id,
-//                                         "name": productDoc.name,
-//                                         "price": productDoc.price,
-//                                         "image": productDoc.image,
-//                                         "inventory": productDoc.inventory - 1,
-//                                         "productNum": 1,
-//                                         "checked": 1
-//                                     });
-//                                 }
-//                                 userDoc.save((err3, doc3) => {
-//                                     if (err3){
-//                                         res.json({
-//                                             status: "1",
-//                                             msg: err3.message
-//                                         })
-//                                     }else{
-//                                         productDoc.inventory--;
-//                                         productDoc.save((err4, doc4) => {
-//                                             if (err4){
-//                                                 res.json({
-//                                                     status: "1",
-//                                                     msg: err4.message
-//                                                 })
-//                                             } else{
-//                                                 res.json({
-//                                                     status: "0",
-//                                                     msg: '',
-//                                                     result:'success'
-//                                                 })
-//                                             }
-//                                         });                                         
-//                                     }
-//                                 });
-//                             }
-//                         }
-//                     })    
-//                 }              
-//             }else{
-//                 res.json({
-//                     status: "1",
-//                     msg: "Product not found."
-//                 })
-//             }
-//         }
-//     });
+router.post("/update", (req, res, next) => {
+    let inventory = req.body.inventory,
+        name = req.body.name,
+        brand = req.body.brand,
+        image = req.file.originalname,
+        memory = req.body.memory,
+        price = req.body.price,
+        description = req.body.description,
+        color = req.body.color;
+        productId = req.body.productId;
 
-    
+    Product.updateOne({"_id":productId},{
+            $set: {"inventory": inventory, 
+                   "name":name,
+                   "brand":brand,
+                   "image": image,
+                   "memory": memory,
+                   "price":price,
+                   "description": description,
+                   "color": color
+        }
+          }, (err, doc) => {
+            if(err){
+              res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+              });
+            } else{
+              res.json({
+                status:'0',
+                msg:'',
+                result:'suc'
+              });
+            }
+    })        
 
-// });
+});
 
 
 router.post("/softDel", (req, res, next) => {
