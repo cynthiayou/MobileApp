@@ -3,7 +3,7 @@
         <div class="navbar">
             <div class="navbar-left-container">
               <a href="/" class="navbar-link">Home</a>
-              <a href="/#/contact" class="navbar-link" v-show="adminFlag">Add Product</a>
+              <a href="javascript:void(0)" class="navbar-link" v-show="adminFlag" @click="addItemFlag=true"  v-if="!addItemFlag">Add Product</a>
             </div>
             <div class="navbar-right-container" style="display: flex;">
               <div class="navbar-menu-container">
@@ -11,7 +11,7 @@
                 <a href="javascript:void(0)" class="navbar-link" @click="signupModalFlag=true" v-if="!userLoggedIn">SignUp</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!userLoggedIn">Login</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="userLoggedIn">Logout</a>
-    
+
                 <div class="navbar-cart-container">
                   <!-- <span class="navbar-cart-count" v-if="cartCount>0">{{cartCount}}</span> -->
                   <a class="navbar-link navbar-cart-link"  href="/#/cart">
@@ -21,6 +21,72 @@
               </div>
             </div>
         </div>
+
+
+
+
+       <div class="md-modal modal-msg md-modal-transition" style="weight:auto height:auto;" v-bind:class="{'md-show':addItemFlag}">
+          <div class="md-modal-inner">
+            <div class="md-top">
+                <div class='md-title'>Add An new Item</div>
+                <button class="md-close" @click="addItemFlag=false">Close</button>
+            </div>
+            <div class="md-content">
+              <div class="confirm-tips">
+                <form class="addItem">
+                  <table>
+                      <tr>
+                          <td style="text-align: left;"><label for="name">Name:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="name" id="name" v-model="PhoneName" ></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="phoneNameSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="brand">Brand:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="brand" id="brand" v-model="PhoneBrand"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="brandSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="price">Price:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="price" id="price" v-model="PhonePrice"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="priceSpan"></span></td>
+                      </tr>
+
+                      <tr>
+                          <td style="text-align: left;"><label for="description">Description:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><textarea name="description" id="description" v-model="PhoneDescription"></textarea></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="descriptionSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="memory">Memory</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="memory" id="memory" v-model="PhoneMemory"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="descriptionSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="color">Color:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="color" id="color" v-model="PhoneColor"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="colorSpan"></span></td>
+                      </tr>               
+                  </table>
+              </form>
+
+            <form action='products/addImage' method="POST"  enctype="multipart/form-data">
+              <table>
+                <tr>
+                 <td style="text-align: left;"><label for="image">Image:</label></td>
+                  <td style="padding:0.3em; margin: 1em;"><input type="file" name="myImage"></td>
+                  <td style="text-align: left; font-size:0.8em;"><span id="imageSpan"></span></td>
+                </tr>
+              </table>
+              <button type="submit" class="btn">Upload</button>
+            </form>
+              </div>
+              <div class="login-wrap">
+                <a href="javascript:void(0)" class="btn-login" @click="addItem">Add Item</a>
+              </div>
+            </div>
+            </div>
+        </div>
+          <div class="md-overlay" v-if="addItemFlag" @click="addItemFlag=false"></div>
         <div class="md-modal modal-msg md-modal-transition" style="width:50%; height:auto;" v-bind:class="{'md-show':signupModalFlag}">
           <div class="md-modal-inner">
             <div class="md-top">
@@ -59,8 +125,8 @@
               </div>
               <div class="login-wrap">
                 <a href="javascript:void(0)" class="btn-login" @click="signup">Sign up</a>
-              </div>                
-            </div>                
+              </div>
+            </div>
             </div>
           </div>
         <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
@@ -87,13 +153,13 @@
               </div>
               <div class="login-wrap">
                 <a href="javascript:void(0)" class="btn-login" @click="login">Log In</a>
-              </div>        
-            </div>                
+              </div>
+            </div>
             </div>
           </div>
           <div class="md-overlay" v-if="loginModalFlag || signupModalFlag" @click="loginModalFlag=false, signupModalFlag=false"></div>
     </header>
- 
+
 </template>
 <script>
     import axios from 'axios'
@@ -103,10 +169,18 @@
         name: 'NavHeader',
         data () {
             return {
+                PhoneImage:'',
+                PhoneName: '',
+                PhoneBrand:'',
+                PhoneMemory:'',
+                PhonePrice:'',
+                PhoneDescription:'',
+                PhoneColor:'',
                 userEmail: '',
                 userPwd: '',
                 errorTip: false,
                 adminFlag: false,
+                addItemFlag: false,
                 signupErrorTip: false,
                 loginModalFlag: false,
                 signupModalFlag: false,
@@ -160,8 +234,8 @@
             axios.post("/users/logout").then(response => {
               let res = response.data;
               if (res.status == "0"){
-                this.userLoggedIn = ""; 
-                this.adminFlag = false;              
+                this.userLoggedIn = "";
+                this.adminFlag = false;
               }
             })
           },
@@ -244,7 +318,6 @@
               $("#pwdSpan2").text("Error").attr("class", "error").show();
             }
           },
-
           signup(){
             axios.post("/users/signup", {
               userName: this.signupName,
@@ -265,7 +338,30 @@
                 }
               }
             })
+          },
+          addItem(){
+            axios.post("products/addItem",{
+              name: this.PhoneName,
+              brand: this.PhoneBrand,
+              memory: this.PhoneMemory,
+              price: this.PhonePrice,
+              description: this.PhoneDescription,
+              color: this.PhoneColor
+            }).then(response => {
+              console.log(response);
+            })
+          },
+          onFileSelected(event){
+            this.PhoneImage = event.target.files[0];
+          },
+          addImage(){
+            axios.post("products/addImage",{
+              image : this.PhoneImage
+            }).then(response => {
+              console.log(response);
+            })
           }
+
         }
     }
 </script>
@@ -279,7 +375,7 @@
   }
   .navbar {
     display: flex;
-    background-color: slategrey;    
+    background-color: slategrey;
     justify-content: space-between;
     align-content: center;
     width: 100%;
@@ -298,7 +394,7 @@
   .header a{
     color: white;
     text-decoration: none;
-  } 
+  }
   .footer a {
     color: #666;
     text-decoration: none;

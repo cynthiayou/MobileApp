@@ -3,9 +3,6 @@ var router = express.Router();
 var User = require('./../models/user');
 const bcrypt = require('bcrypt');
 
-
-
-
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -55,7 +52,7 @@ router.post('/signup', function(req, res, next) {
       }
     }
   })
-  
+
 });
 
 
@@ -73,7 +70,7 @@ router.post('/login', (req, res, next) => {
       })
     } else{
       if (userDoc){
-        bcrypt  
+        bcrypt
           .compare(pwd, userDoc.userPwd)
           .then((doMatch) => {
             console.log("doMatch" + doMatch);
@@ -99,7 +96,7 @@ router.post('/login', (req, res, next) => {
                 status: '1',
                 msg: 'Paaword is wrong!',
               })
-            }            
+            }
           })
       } else {
         res.json({
@@ -108,7 +105,7 @@ router.post('/login', (req, res, next) => {
       })
       }
     }
-  })   
+  })
 });
 
 router.post('/logout', function(req, res, next) {
@@ -190,4 +187,3 @@ router.get("/cartList", function (req,res,next) {
   });
 });
 module.exports = router;
-   
