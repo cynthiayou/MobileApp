@@ -16,6 +16,7 @@ router.get("/list", (req, res, next) => {
     let sort = req.param("sort");    
     let brand = req.param("brand");  
     let internalStorage = req.param("internalStorage");
+    let keyword = req.param("keyword");
     let priceGt = '';
     let priceLte = '';
     let params = {deleted: false};
@@ -31,6 +32,9 @@ router.get("/list", (req, res, next) => {
                 $lte: priceLte
             }
     } 
+    if (keyword){
+        params['name'] = {$regex: new RegExp(keyword, "i")} 
+    }
     
     if (brand != "all"){
         if (brand == 'iPhone'){
@@ -103,7 +107,7 @@ router.post("/addCart", (req, res, next) => {
                                     if (item._id == productId){
                                         found = true;
                                         item.productNum++;
-                                        item.inventory = productDoc.inventory;
+                                        --item.inventory;
                                     }
                                 });
                                 if (!found){
@@ -112,7 +116,7 @@ router.post("/addCart", (req, res, next) => {
                                         "name": productDoc.name,
                                         "price": productDoc.price,
                                         "image": productDoc.image,
-                                        "inventory": productDoc.inventory,
+                                        "inventory": productDoc.inventory - 1,
                                         "productNum": 1,
                                         "checked": 1
                                     });
@@ -157,6 +161,96 @@ router.post("/addCart", (req, res, next) => {
     
 
 });
+
+
+
+
+// router.post("/update", (req, res, next) => {
+//     var userId = req.cookies.userId;
+//     var productId = req.body.productId;
+//     Product.findOne({_id: productId}, (err, productDoc) => {
+//         if (err){
+//             res.json({
+//                 status: "1",
+//                 msg: err.message
+//             })
+//         } else {
+//             if (productDoc){
+//                 product = productDoc;
+//                 if (productDoc.inventory <= 0){
+//                     res.json({
+//                         status: "2",
+//                         msg: "Out of stock!"
+//                     })
+//                 } else{
+//                     User.findOne({_id: userId}, (err2, userDoc) => {
+//                         if (err2){
+//                             res.json({
+//                                 status: "1",
+//                                 msg: err2.message
+//                             })
+//                         } else {
+//                             if (userDoc){
+//                                 found = false;
+//                                 userDoc.cartList.forEach((item) => {
+//                                     if (item._id == productId){
+//                                         found = true;
+//                                         item.productNum++;
+//                                         --item.inventory;
+//                                     }
+//                                 });
+//                                 if (!found){
+//                                     userDoc.cartList.push({
+//                                         "_id": productDoc._id,
+//                                         "name": productDoc.name,
+//                                         "price": productDoc.price,
+//                                         "image": productDoc.image,
+//                                         "inventory": productDoc.inventory - 1,
+//                                         "productNum": 1,
+//                                         "checked": 1
+//                                     });
+//                                 }
+//                                 userDoc.save((err3, doc3) => {
+//                                     if (err3){
+//                                         res.json({
+//                                             status: "1",
+//                                             msg: err3.message
+//                                         })
+//                                     }else{
+//                                         productDoc.inventory--;
+//                                         productDoc.save((err4, doc4) => {
+//                                             if (err4){
+//                                                 res.json({
+//                                                     status: "1",
+//                                                     msg: err4.message
+//                                                 })
+//                                             } else{
+//                                                 res.json({
+//                                                     status: "0",
+//                                                     msg: '',
+//                                                     result:'success'
+//                                                 })
+//                                             }
+//                                         });                                         
+//                                     }
+//                                 });
+//                             }
+//                         }
+//                     })    
+//                 }              
+//             }else{
+//                 res.json({
+//                     status: "1",
+//                     msg: "Product not found."
+//                 })
+//             }
+//         }
+//     });
+
+    
+
+// });
+
 
 router.post("/softDel", (req, res, next) => {
     var productId = req.body.productId;
