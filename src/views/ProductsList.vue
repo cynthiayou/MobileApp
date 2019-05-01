@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-header></nav-header>
+        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin"></nav-header>
         <div class="accessory-result-page accessory-page">
             <div class="container">
                 <div class="filter-nav">
@@ -51,9 +51,9 @@
                                         <div class="memory">Memory:{{item.memory}}G</div>
                                         <div class="color">Color:{{item.color}}</div>
                                         <div class="inventory">Qty in stock:{{item.inventory}}</div>
-                                        <div v-show="adminFlag" v-on:admin="isAdmin">
-                                            <button type="button" class="btn btn-xs" >Edit</button>
-                                            <button type="button" class="btn btn-xs" @click="delConfirm(item)">Delete</button>
+                                        <div>
+                                            <button v-show="adminFlagPar" type="button" class="btn btn-xs" >Edit</button>
+                                            <button v-show="adminFlagPar" type="button" class="btn btn-xs"  @click="delConfirm(item)">Delete</button>
                                         </div>
                                         <div class="btn-area">
                                             <a href="javacript:;" class="btn btn--m" @click="addCart(item._id)">Add to cart</a>
@@ -123,7 +123,7 @@
                 show:true,
                 loading:false,
                 mdShow:false,
-                adminFlag: false,
+                adminFlagPar: false,
                 mdOutOfStock: false,
                 mdShowCart: false,
                 modalConfirm: false,
@@ -151,7 +151,6 @@
         },
         mounted: function(){
                 this.getProductsList();
-                this.isAdmin();
         },
         methods: {
             getProductsList(flag){
@@ -273,13 +272,27 @@
                 });
             },
             isAdmin(){
-                var match = document.cookie.match(new RegExp('(^| )' + 'userName' + '=([^;]+)'));
-                if (match) {
-                    if (match[2] == "admin"){
-                        this.adminFlag = true;
-                    };
-                }
-                    
+                // var match = document.cookie.match(new RegExp('(^| )' + 'userName' + '=([^;]+)'));
+                // if (match) {
+                //     if (match[2] == "admin"){
+                //         this.adminFlag = true;
+                //     };
+                // }
+                this.adminFlagPar = true;
+                console.log("Recieved logged in");
+                // this.getProductsList();  
+                
+            },
+            notAdmin(){
+                // var match = document.cookie.match(new RegExp('(^| )' + 'userName' + '=([^;]+)'));
+                // if (match) {
+                //     if (match[2] == "admin"){
+                //         this.adminFlag = true;
+                //     };
+                // }
+                console.log("Recieved logged out");
+                this.adminFlagPar = false;
+                // this.getProductsList();  
                 
             }
         },            

@@ -125,10 +125,10 @@
                     var res = response.data;
                     if(res.status=="0"){
                       this.userLoggedIn = res.result;
-                      if (this.userLoggedIn == "admin"){
+                      if (this.userLoggedIn == 'admin'){
                         this.adminFlag = true;
                         this.$emit("admin");
-                      };
+                      };   
                       this.loginModalFlag = false;
                     }
                 });
@@ -165,7 +165,7 @@
               if (res.status == "0"){
                 this.userLoggedIn = ""; 
                 this.adminFlag = false;    
-                  
+                this.$emit("notAdmin");
               }
             })
           },
