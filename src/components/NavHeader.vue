@@ -21,10 +21,6 @@
               </div>
             </div>
         </div>
-
-
-
-
        <div class="md-modal modal-msg md-modal-transition" style="weight:auto height:auto;" v-bind:class="{'md-show':addItemFlag}">
           <div class="md-modal-inner">
             <div class="md-top">
@@ -201,6 +197,7 @@
                       this.userLoggedIn = res.result;
                       if (this.userLoggedIn == "admin"){
                         this.adminFlag = true;
+                        this.$emit("admin")
                       };
                       this.loginModalFlag = false;
                     }
@@ -236,6 +233,7 @@
               if (res.status == "0"){
                 this.userLoggedIn = "";
                 this.adminFlag = false;
+                this.$emit("notAdmin");
               }
             })
           },

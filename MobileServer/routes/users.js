@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('./../models/user');
+var Product = require('./../models/product');
 const bcrypt = require('bcrypt');
 
 /* GET users listing. */
@@ -77,11 +78,11 @@ router.post('/login', (req, res, next) => {
             if(doMatch){
               res.cookie("userId", userDoc._id, {
                 path: '/',
-                maxAge: 1000*60*20   //20 minutes
+                maxAge: 1000*60*60   //20 minutes
               });
               res.cookie("userName",userDoc.userName, {
                 path:'/',
-                maxAge: 1000*60*20   //20 minutes
+                maxAge: 1000*60*60   //20 minutes
               })
               // req.session.user = userDoc;
               res.json({
@@ -110,6 +111,10 @@ router.post('/login', (req, res, next) => {
 
 router.post('/logout', function(req, res, next) {
   res.cookie("userId", "", {
+    path:'/',
+    maxAge: -1
+  });
+  res.cookie("userName", "", {
     path:'/',
     maxAge: -1
   });
@@ -186,4 +191,84 @@ router.get("/cartList", function (req,res,next) {
       }
   });
 });
+
+router.post("/cartDel", function (req,res,next) {
+  var userId = req.cookies.userId, productId = req.body.productId, productNum = req.body.productNum;
+  User.updateOne({
+    _id:userId
+  },{
+    $pull:{
+      'cartList':{
+        '_id':productId
+      }
+    }
+  }, function (err,doc) {
+    if(err){
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      });
+    }else{
+      Product.updateOne({"_id":productId},{
+        $inc: {"inventory": productNum}
+      }, (err2, doc2) => {
+        if(err2){
+          res.json({
+            status:'1',
+            msg:err2.message,
+            result:''
+          });
+        } else{
+          res.json({
+            status:'0',
+            msg:'',
+            result:'suc'
+          });
+        }
+      });
+    }
+  });
+});
+
+router.post("/cartEdit", function (req,res,next) {
+  var userId = req.cookies.userId,
+      productId = req.body.productId,
+      productNum = req.body.productNum,
+      checked = req.body.checked,
+      inventory = req.body.inventory;
+
+  console.log("userId: ", userId, " produID: ", productId, " productNum: ", productNum, " checked: ", checked, " inventory: ", inventory);
+  User.updateOne({"_id":userId},{
+    $set: {"cartList.$[pro].inventory": inventory, "cartList.$[pro].productNum": productNum}
+  }, { arrayFilters: [{"pro._id": productId}]
+  }, function (err,doc) {
+    if(err){
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      });
+    }else{
+      Product.updateOne({"_id":productId},{
+        $set: {"inventory": inventory}
+      }, (err2, doc2) => {
+        if(err2){
+          res.json({
+            status:'1',
+            msg:err2.message,
+            result:''
+          });
+        } else{
+          res.json({
+            status:'0',
+            msg:'',
+            result:'suc'
+          });
+        }
+      })
+    }
+  })
+});
+
 module.exports = router;

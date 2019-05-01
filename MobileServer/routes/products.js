@@ -15,7 +15,7 @@ mongoose.connection.on("connected", () => {
 
 //Set Storage Engine
 const storage = multer.diskStorage({
-  destination: './public/uploads/',
+  destination: '../static/',
   filename: function(req, file, cb){
     cb(null, file.fieldname + '-' +Date.now()+ path.extname(file.originalname));
   }
@@ -34,13 +34,13 @@ const upload = multer({
 // Check File Type
 function checkFileType(file, cb){
   // Allowed ext
-  const filetypes = /jpeg| jpg|png|gif/;
+  const filetypes = /jpeg|jpg|png|gif/;
   // check ext
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   // check mime
   const minetype = filetypes.test(file.mimetype);
 
-  if (extname && mimetype){
+  if (extname && minetype){
     return cb(null, true);
   }
   else{
@@ -57,7 +57,7 @@ router.get("/list", (req, res, next) => {
     let internalStorage = req.param("internalStorage");
     let priceGt = '';
     let priceLte = '';
-    let params = {};
+    let params = {deleted:false};
 
     if (priceLevel != "all"){
         switch(priceLevel){
@@ -66,11 +66,9 @@ router.get("/list", (req, res, next) => {
             case '2':priceGt = 1000; priceLte = 5000; break;
         }
 
-        params = {
-            price: {
-                $gt: priceGt,
-                $lte: priceLte
-            }
+        params['price'] = {
+          $gt: priceGt,
+          $lte: priceLte
         }
     }
 
@@ -115,94 +113,124 @@ router.get("/list", (req, res, next) => {
 });
 
 router.post("/addCart", (req, res, next) => {
-    var userId = req.cookies.userId;
-    var productId = req.body.productId;
-    User.findOne({_id: userId}, (err, userDoc) => {
-        if (err){
-            res.json({
-                status: "1",
-                msg: err.message
-            })
-        } else {
-            if (userDoc){
-                Product.findOne({_id: productId}, (err3, productDoc) => {
-                    if (err3){
-                        res.json({
-                            status: "1",
-                            msg: err3.message
-                        })
-                    } else {
-                        if (productDoc){
-                            if (productDoc.inventory == 0){
-                                res.json({
-                                    status: "1",
-                                    msg: "Out of stock"
-                                })
-                            } else{
-                                productDoc.inventory--;
-                            };
-                            found = false;
-                            userDoc.cartList.forEach((item) => {
-                                if (item._id == productId){
-                                    found = true;
-                                    item.productNum++;
-                                }
-                            });
-                            if (found){
-                                userDoc.save((err2, doc2) => {
-                                    if (err2){
-                                        res.json({
-                                            status: "1",
-                                            msg: err2.message
-                                        })
-                                    }else{
-                                        res.json({
-                                            status: "0",
-                                            msg: '',
-                                            result:'success'
-                                        })
-                                    }
-                                })
-                            } else {
-                                userDoc.cartList.push({
-                                    "_id": productDoc._id,
-                                    "name": productDoc.name,
-                                    "price": productDoc.price,
-                                    "image": productDoc.image,
-                                    "productNum": 1,
-                                    "checked": 1
-                                });
-                                userDoc.save((err4, doc2) => {
-                                    if (err4){
-                                        res.json({
-                                            status: "1",
-                                            msg: err4.message
-                                        })
-                                    }else{
-                                        res.json({
-                                            status: "0",
-                                            msg: '',
-                                            result:'success'
-                                        })
-                                    }
-                                })
-                            }
-                        }
-                    }
-                });
-            }
-        }
-    })
-
-
+  var userId = req.cookies.userId;
+  var productId = req.body.productId;
+  Product.findOne({_id: productId}, (err, productDoc) => {
+      if (err){
+          res.json({
+              status: "1",
+              msg: err.message
+          })
+      } else {
+          if (productDoc){
+              product = productDoc;
+              if (productDoc.inventory <= 0){
+                  res.json({
+                      status: "2",
+                      msg: "Out of stock!"
+                  })
+              } else{
+                  User.findOne({_id: userId}, (err2, userDoc) => {
+                      if (err2){
+                          res.json({
+                              status: "1",
+                              msg: err2.message
+                          })
+                      } else {
+                          if (userDoc){
+                              found = false;
+                              userDoc.cartList.forEach((item) => {
+                                  if (item._id == productId){
+                                      found = true;
+                                      item.productNum++;
+                                      item.inventory = productDoc.inventory;
+                                  }
+                              });
+                              if (!found){
+                                  userDoc.cartList.push({
+                                      "_id": productDoc._id,
+                                      "name": productDoc.name,
+                                      "price": productDoc.price,
+                                      "image": productDoc.image,
+                                      "inventory": productDoc.inventory,
+                                      "productNum": 1,
+                                      "checked": 1
+                                  });
+                              }
+                              userDoc.save((err3, doc3) => {
+                                  if (err3){
+                                      res.json({
+                                          status: "1",
+                                          msg: err3.message
+                                      })
+                                  }else{
+                                      productDoc.inventory--;
+                                      productDoc.save((err4, doc4) => {
+                                          if (err4){
+                                              res.json({
+                                                  status: "1",
+                                                  msg: err4.message
+                                              })
+                                          } else{
+                                              res.json({
+                                                  status: "0",
+                                                  msg: '',
+                                                  result:'success'
+                                              })
+                                          }
+                                      });
+                                  }
+                              });
+                          }
+                      }
+                  })
+              }
+          }else{
+              res.json({
+                  status: "1",
+                  msg: "Product not found."
+              })
+          }
+      }
+  });
 
 
 
 });
 
 
+router.post("/softDel", (req, res, next) => {
+  var productId = req.body.productId;
+  Product.delete({_id:productId}, (err, doc) => {
+      console.log("doc" + doc);
+      if (err){
+          res.json({
+              status: "1",
+              msg: err.message
+          })
+      } else{
+          res.json({
+              status: "0",
+              msg: '',
+              result:'success'
+          })
+      }
+  });
+});
 
 router.post("/addItem",(req, res, next) => {
+      // upload(req, res,(err) => {
+      //   if (err){
+      //     res.json({
+      //       status:'1',
+      //       msg: err,
+      //       resulte:'fails'
+      //     })
+      //   }else{
+      //     console.log(req.file);
+      //     res.send('test');
+      //   }
+      // });
       var Phone = new Product({
         name:req.body.name,
         brand: req.body.brand,

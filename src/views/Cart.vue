@@ -31,7 +31,7 @@
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img v-lazy="'/static/'+item.image" v-bind:alt="item.name">
+                    <img v-bind:src="'/static/'+item.image" v-bind:alt="item.name" style="height: 80%;">
                   </div>
                   <div class="cart-item-title">
                     <div class="item-name">{{item.name}}</div>
@@ -48,6 +48,8 @@
                         <span class="select-ipt">{{item.productNum}}</span>
                         <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
+                      <br> 
+                      <span style="font-style:italic; font-size: 0.8em">{{item.inventory}} in stock</span>
                     </div>
                   </div>
                 </div>
@@ -57,9 +59,7 @@
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
                     <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
-                      <svg class="icon icon-del">
-                        <use xlink:href="#icon-del"></use>
-                      </svg>
+                       <img  class="icon icon-del" src="/static/bin.png" alt="">
                     </a>
                   </div>
                 </div>
@@ -185,24 +185,30 @@
             },
             delCart(){
               axios.post("/users/cartDel",{
-                productId:this.delItem._id
+                productId:this.delItem._id,
+                productNum: this.delItem.productNum
               }).then((response)=>{
                   let res = response.data;
                   if(res.status == '0'){
                     this.modalConfirm = false;
                     this.init();
-                    this.$store.commit("updateCartCount",-this.delItem.productNum);
+                    // this.$store.commit("updateCartCount",-this.delItem.productNum);
                   }
               });
             },
             editCart(flag,item){
                 if(flag=='add'){
+                  if (item.inventory <= 0){
+                    return;
+                  }
                   item.productNum++;
+                  item.inventory--;
                 }else if(flag=='minu'){
                   if(item.productNum<=1){
                     return;
                   }
                   item.productNum--;
+                  item.inventory++;
                 }else{
                   item.checked = item.checked=="1"?'0':'1';
                 }
@@ -210,7 +216,8 @@
                 axios.post("/users/cartEdit",{
                   productId:item._id,
                   productNum:item.productNum,
-                  checked:item.checked
+                  checked:item.checked,
+                  inventory: item.inventory
                 }).then((response)=>{
                     let res = response.data;
                     let num = 0;
@@ -219,7 +226,7 @@
                     }else if(flag=='minu'){
                       num = -1;
                     }
-                    this.$store.commit("updateCartCount",num);
+ 
                 })
             },
             toggleCheckAll(){

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-header></nav-header>
+        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin"></nav-header>
         <div class="accessory-result-page accessory-page">
             <div class="container">
                 <div class="filter-nav">
@@ -31,7 +31,7 @@
                         <dl class="filter-price">
                         <dt>Price:</dt>
                         <dd><a href="javascript:void(0)"  @click="setPriceAll" v-bind:class="{'cur':priceLevel=='all'}" >All</a></dd>
-                        <dd v-for="(price, index) in priceFilter"> 
+                        <dd v-for="(price, index) in priceFilter">
                             <a href="javascript:void(0)" @click="setPriceFilter(index)" v-bind:class="{'cur':priceLevel==index}" >{{price.startPrice}} - {{price.endPrice}}</a>
                         </dd>
                         </dl>
@@ -51,6 +51,10 @@
                                         <div class="memory">Memory:{{item.memory}}G</div>
                                         <div class="color">Color:{{item.color}}</div>
                                         <div class="inventory">Qty in stock:{{item.inventory}}</div>
+                                        <div>
+                                            <button v-show="adminFlagPar" type="button" class="btn btn-xs" >Edit</button>
+                                            <button v-show="adminFlagPar" type="button" class="btn btn-xs"  @click="delConfirm(item)">Delete</button>
+                                        </div>
                                         <div class="btn-area">
                                             <a href="javacript:;" class="btn btn--m" @click="addCart(item._id)">Add to cart</a>
                                         </div>
@@ -60,7 +64,7 @@
                         </div>
                         <div class="loadMore" v-show="show" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
                             <img src="./../assets/loading-spinning-bubbles.svg" v-show="loading" />
-                        </div> 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,6 +73,12 @@
             <h3 slot="message">Please log in first before adding to cart!</h3>
             <div slot="btnGroup">
                 <a class="btn btn--m" href="javascript:;" @click="mdShow=false">Close</a>
+            </div>
+        </modal>
+        <modal v-bind:mdShow="mdOutOfStock" v-on:close="closeModal">
+            <h3 slot="message">Out of stock!</h3>
+            <div slot="btnGroup">
+                <a class="btn btn--m" href="javascript:;" @click="mdOutOfStock=false">Close</a>
             </div>
         </modal>
         <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
@@ -83,6 +93,13 @@
                 <router-link class="btn btn--m" style="font-size: 12px;" href="javascript:;" to="/cart">Go to cart</router-link>
             </div>
         </modal>
+        <Modal :mdShow="modalConfirm" @close="modalConfirm = false">
+            <p slot="message">Are you sure you want to delete this item?</p>
+            <div slot="btnGroup">
+                <a class="btn btn--m" href="javascript:;" @click="softDel">Confirm</a>
+                <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm = false">Cancel</a>
+            </div>
+        </Modal>
         <nav-footer></nav-footer>
     </div>
 </template>
@@ -106,26 +123,30 @@
                 show:true,
                 loading:false,
                 mdShow:false,
+                adminFlagPar: false,
+                mdOutOfStock: false,
                 mdShowCart: false,
+                modalConfirm: false,
+                delItem:'',
                 priceFilter:[
                     {
                         startPrice: '0.00',
-                        endPrice: '500.00',                        
+                        endPrice: '500.00',
                     },
                     {
                         startPrice: '500.00',
-                        endPrice: '1000.00',                        
+                        endPrice: '1000.00',
                     },
                     {
                         startPrice: '1000.00',
-                        endPrice: '5000.00',                        
+                        endPrice: '5000.00',
                     }
                 ],
                 priceLevel: 'all',
                 filterBy:false,
                 overLayFlag: false,
                 brand: 'all',
-                internalStorage: "all"
+                internalStorage: "all",
             }
         },
         mounted: function(){
@@ -162,12 +183,12 @@
                             }
                         }else{
                             this.productsList = [];
-                        }                    
+                        }
                     });
             },
 
             loadMore(){
-                this.busy = true;  
+                this.busy = true;
                 this.show = true;
                 setTimeout(() => {
                     this.page++;
@@ -190,7 +211,7 @@
                 this.page = 1;
                 this.getProductsList();
                 this.closePop();
-            },            
+            },
             setPriceFilter(index){
                 this.priceLevel = index;
                 this.page = 1;
@@ -209,8 +230,9 @@
                     var res = response.data;
                     if (res.status == '0'){
                         this.mdShowCart = true;
-                    }
-                    else{
+                    } else if (res.status == '2'){
+                        this.mdOutOfStock = true;
+                    } else{
                         this.mdShow = true;
                         // alert("msg: "+res.msg);
                     }
@@ -231,9 +253,36 @@
                 this.internalStorage = event.target.value;
                 this.page=1;
                 this.getProductsList();
-            }
-        },            
+            },
+            delConfirm(item){
+                this.delItem = item;
+                this.modalConfirm = true;
+            },
+            softDel(){
+                axios.post("/products/softDel", {
+                    productId: this.delItem._id
+                }).then(response => {
+                    var res = response.data;
+                    if (res.status == '0'){
+                        this.modalConfirm = false;
+                        this.getProductsList();
+                    } else{
+                        alert("unable to delete this item.");
+                    }
+                });
+            },
+            isAdmin(){
+                this.adminFlagPar = true;
+                console.log("Recieved logged in");
 
+            },
+            notAdmin(){
+                console.log("Recieved logged out");
+                this.adminFlagPar = false;
+                // this.getProductsList();
+
+            }
+        },
         components:{
             NavHeader,
             NavFooter,
@@ -254,6 +303,17 @@
     height: 100px;
     line-height:100px;
     text-align: center;
+}
+.btn-xs {
+    height: 20px;
+    line-height: 10px;
+    margin-top:3px;
+    padding-left: .8em;
+    padding-right: .8em;
+    font-size: 10px;
+    letter-spacing: .1em;
+    margin-bottom: 0px;
+
 }
 
 </style>

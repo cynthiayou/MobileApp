@@ -26,6 +26,7 @@ const userSchema = new Schema({
         name: String,
         price: String,
         image: String,
+        inventory: Number,
         checked: String,
         productNum:String
     }],
