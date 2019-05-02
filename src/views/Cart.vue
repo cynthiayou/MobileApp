@@ -244,11 +244,18 @@
                 })
             },
             checkOut(){
-                if(this.checkedCount>0){
-                    this.$router.push({
-                        path:"/address"
-                    });
-                }
+                axios.post("/users/checkout",{ 
+                }).then((response)=>{
+                    let res = response.data;
+                    if(res.status=='0'){
+                      alert("Checked out successfully!");
+                    }else{
+                      alert("Sorry, unable to check out this time!")
+                    }
+                })
+                // this.$router.push({
+                //     path:"/address"
+                // });
             }
         }
     }

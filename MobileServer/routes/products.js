@@ -56,9 +56,10 @@ router.get("/list", (req, res, next) => {
     let sort = req.param("sort");
     let brand = req.param("brand");
     let internalStorage = req.param("internalStorage");
+    let keyword = req.param("keyword");
     let priceGt = '';
     let priceLte = '';
-    let params = {deleted:false};
+    let params = {deleted: false};
 
     if (priceLevel != "all"){
         switch(priceLevel){
@@ -71,6 +72,9 @@ router.get("/list", (req, res, next) => {
           $gt: priceGt,
           $lte: priceLte
         }
+    }
+    if (keyword){
+      params['name'] = {$regex: new RegExp(keyword, "i")}
     }
 
     if (brand != "all"){
@@ -144,7 +148,8 @@ router.post("/addCart", (req, res, next) => {
                                   if (item._id == productId){
                                       found = true;
                                       item.productNum++;
-                                      item.inventory = productDoc.inventory;
+                                      // item.inventory = productDoc.inventory;
+                                      --item.inventory;
                                   }
                               });
                               if (!found){
@@ -153,7 +158,7 @@ router.post("/addCart", (req, res, next) => {
                                       "name": productDoc.name,
                                       "price": productDoc.price,
                                       "image": productDoc.image,
-                                      "inventory": productDoc.inventory-1,
+                                      "inventory": productDoc.inventory - 1,
                                       "productNum": 1,
                                       "checked": 1
                                   });
@@ -220,10 +225,6 @@ router.post("/softDel", (req, res, next) => {
 });
 
 router.post("/addItem",(req, res, next) => {
-
-
-
-  console.log("add prams"+req.body);
       upload(req, res,(err) => {
         if (err){
           res.json({
@@ -273,6 +274,7 @@ router.post("/addItem",(req, res, next) => {
               })
             }
           }else{
+            console.log(req.body);
             let product = new Product({
               inventory: req.body.inventory,
               name: req.body.name,
@@ -299,8 +301,6 @@ router.post("/addItem",(req, res, next) => {
               }
             });
           }
-
-
         }
       });
 });

@@ -4,6 +4,11 @@
         <div class="accessory-result-page accessory-page">
             <div class="container">
                 <div class="filter-nav">
+                    <form class="form-inline" style="float: left;">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input id="keyword" class="form-control form-control-xs ml-3 w-75" type="text" placeholder="Search" aria-label="Search" style="height:30px;">
+                        <img id="search" src="/static/searchIcon.png" alt="search" style="margin-left: 5px; height: 10px;" @click="search">
+                    </form>
                     <span class="sortby">Sort by:</span>
                     <select class="form-control" id="brandFilter" name="brandFilter" @change="onBrandChange($event)">
                         <option value="all" selected="">All Brands</option>
@@ -223,6 +228,7 @@
                 mdShowCart: false,
                 modalConfirm: false,
                 delItem:'',
+                keyword:'',
                 priceFilter:[
                     {
                         startPrice: '0.00',
@@ -259,7 +265,8 @@
                     sort: this.sortFlag? 1 : -1,
                     priceLevel: this.priceLevel,
                     brand: this.brand,
-                    internalStorage: this.internalStorage
+                    internalStorage: this.internalStorage,
+                    keyword: this.keyword,
                   }
                 this.loading = true;
                 axios.get("/products/list", {
@@ -461,6 +468,11 @@
                 console.log("Recieved logged out");
                 this.adminFlagPar = false;
                 // this.getProductsList();
+            },
+            search(){
+                this.keyword = $("#keyword").val();
+                this.page=1;
+                this.getProductsList();
 
             }
         },

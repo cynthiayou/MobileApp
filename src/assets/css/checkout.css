@@ -572,7 +572,12 @@ html {
 .cart-item-list .item-edit-btn:hover .icon {
   fill: #ee7a23;
 }
-
+.cart-item-list .cart-tab {
+  min-height: 40px;
+  padding: 10px 0 10px 0;
+  text-align: left;
+  /* border-left: 1px solid #e9e9e9; */
+}
 .item-check-btn {
   display: inline-block;
   width: 20px;

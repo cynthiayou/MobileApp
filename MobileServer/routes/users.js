@@ -271,4 +271,172 @@ router.post("/cartEdit", function (req,res,next) {
   })
 });
 
+router.post('/checkout', (req, res, next) => {
+  User.findOne({_id: req.cookies.userId}, (err, userDoc) =>{
+    if (err){
+      res.json({
+        status: "1",
+        msg:err.message
+      })
+    } else{
+      if (userDoc){
+        orderId = userDoc.orderList.length;
+        userDoc.orderList.push(userDoc.cartList);
+        userDoc.cartList = [];
+        userDoc.save((err, doc) => {
+          if (err){
+              res.json({
+                  status: "1",
+                  msg: err.message
+              })
+          }else{
+              res.json({
+                  status: "0",
+                  msg: '',
+                  result: 'success'
+              })
+          }
+      })
+      } else{
+        res.json({
+          status: "1",
+          msg: "User not found."
+      })
+      }
+    }
+  })
+});
+router.get("/orders", function (req,res,next) {
+  var userId = req.cookies.userId;
+  User.findOne({_id:userId}, function (err,doc) {
+      if(err){
+        res.json({
+          status:'1',
+          msg:err.message,
+          result:''
+        });
+      }else{
+          if(doc){
+            res.json({
+              status:'0',
+              msg:'',
+              result:doc.orderList
+            });
+          }
+      }
+  });
+});
+
+router.post("/payMent", function (req,res,next) {
+  var userId = req.cookies.userId,
+    addressId = req.body.addressId,
+    orderTotal = req.body.orderTotal;
+  User.findOne({userId:userId}, function (err,doc) {
+     if(err){
+        res.json({
+            status:"1",
+            msg:err.message,
+            result:''
+        });
+     }else{
+       var address = '',goodsList = [];
+       doc.addressList.forEach((item)=>{
+          if(addressId==item.addressId){
+            address = item;
+          }
+       })
+       doc.cartList.filter((item)=>{
+         if(item.checked=='1'){
+           goodsList.push(item);
+         }
+       });
+
+       var platform = '622';
+       var r1 = Math.floor(Math.random()*10);
+       var r2 = Math.floor(Math.random()*10);
+
+       var sysDate = new Date().Format('yyyyMMddhhmmss');
+       var createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+       var orderId = platform+r1+sysDate+r2;
+       var order = {
+          orderId:orderId,
+          orderTotal:orderTotal,
+          addressInfo:address,
+          goodsList:goodsList,
+          orderStatus:'1',
+          createDate:createDate
+       };
+
+       doc.orderList.push(order);
+
+       doc.save(function (err1,doc1) {
+          if(err1){
+            res.json({
+              status:"1",
+              msg:err.message,
+              result:''
+            });
+          }else{
+            res.json({
+              status:"0",
+              msg:'',
+              result:{
+                orderId:order.orderId,
+                orderTotal:order.orderTotal
+              }
+            });
+          }
+       });
+     }
+  })
+});
+
+router.get("/orderDetail", function (req,res,next) {
+  var userId = req.cookies.userId,orderId = req.param("orderId");
+  User.findOne({userId:userId}, function (err,userInfo) {
+      if(err){
+          res.json({
+             status:'1',
+             msg:err.message,
+             result:''
+          });
+      }else{
+         var orderList = userInfo.orderList;
+         if(orderList.length>0){
+           var orderTotal = 0;
+           orderList.forEach((item)=>{
+              if(item.orderId == orderId){
+                orderTotal = item.orderTotal;
+              }
+           });
+           if(orderTotal>0){
+             res.json({
+               status:'0',
+               msg:'',
+               result:{
+                 orderId:orderId,
+                 orderTotal:orderTotal
+               }
+             })
+           }else{
+             res.json({
+               status:'120002',
+               msg:'无此订单',
+               result:''
+             });
+           }
+         }else{
+           res.json({
+             status:'120001',
+             msg:'当前用户未创建订单',
+             result:''
+           });
+         }
+      }
+  })
+});
+
+
+
+
 module.exports = router;

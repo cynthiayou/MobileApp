@@ -7,7 +7,7 @@
             </div>
             <div class="navbar-right-container" style="display: flex;">
               <div class="navbar-menu-container">
-                <span class="navbar-link" v-if="userLoggedIn" style="color:white;">Welcome,{{userLoggedIn}}</span>
+                <span class="navbar-link" v-if="userLoggedIn" style="color:white;">Welcome, <a href="/#/orders" style="text-decoration:underline;">{{userLoggedIn}}</a></span>
                 <a href="javascript:void(0)" class="navbar-link" @click="signupModalFlag=true" v-if="!userLoggedIn">SignUp</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!userLoggedIn">Login</a>
                 <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="userLoggedIn">Logout</a>
@@ -224,6 +224,7 @@
                 this.userLoggedIn = res.result.userName;
                 if (this.userLoggedIn == "admin"){
                   this.adminFlag = true;
+                  this.$emit("admin");
                 }
               } else{
                 this.errorTip = true;
