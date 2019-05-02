@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin" ></nav-header>
+        <nav-header v-on:admin="isAdmin" v-on:refresh="pageRefresh" v-on:notAdmin="notAdmin" ></nav-header>
         <div class="accessory-result-page accessory-page">
             <div class="container">
                 <div class="filter-nav">
@@ -237,10 +237,10 @@
                 this.getProductsList();
         },
         methods: {
-            // pageRefresh(){
-            //     this.page= 1;
-            //     this.getProductsList();
-            // },
+            pageRefresh(){
+                this.page= 1;
+                this.getProductsList();
+            },
             getProductsList(flag){
                 let param = {
                     page: this.page,
@@ -378,7 +378,7 @@
                 if (res.status == "0"){
                     this.editShow = false;
                     this.page= 1;
-                    this.getProductsList();                    
+                    this.getProductsList();
                 } else{
                     this.editShow = true;
                 }

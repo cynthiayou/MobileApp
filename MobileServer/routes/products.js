@@ -78,7 +78,7 @@ router.get("/list", (req, res, next) => {
         params['name'] = {$regex: new RegExp("Galaxy", "i")}
       } else{
         params['name'] = {$regex: new RegExp(keyword, "i")}
-      }      
+      }
     }
 
     if (brand != "all"){
@@ -238,7 +238,7 @@ router.post("/addItem",(req, res, next) => {
           })
         }else{
           console.log("this is the updated value"+req.body.updated);
-          if (req.body.updated){
+          if (req.body.updated === true){
             console.log("this is entered the updated");
             let image = '';
             if (req.body.image != ''){
