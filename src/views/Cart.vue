@@ -250,6 +250,9 @@
                     if(res.status=='0'){
                       this.init();
                       alert("Checked out successfully!");
+                      this.$router.push({
+                        path:"/"
+                      });
 
                     }else{
                       alert("Sorry, unable to check out this time!")

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin" v-on:refresh="pageRefresh"></nav-header>
+        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin" ></nav-header>
         <div class="accessory-result-page accessory-page">
             <div class="container">
                 <div class="filter-nav">
@@ -153,22 +153,6 @@
         </div>
           <div class="md-overlay" v-if="editShow" @click="editShow=false"></div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
             <h3 slot="message">
                 <svg class="icon-status-ok">
@@ -253,10 +237,10 @@
                 this.getProductsList();
         },
         methods: {
-            pageRefresh(){
-                this.page= 1;
-                this.getProductsList();
-            },
+            // pageRefresh(){
+            //     this.page= 1;
+            //     this.getProductsList();
+            // },
             getProductsList(flag){
                 let param = {
                     page: this.page,
@@ -370,34 +354,35 @@
             },
             update(){
               let formData1 = new FormData();
-            formData1.append('inventory', this.PhoneInventory);
-            formData1.append('name', this.PhoneName);
-            formData1.append('brand', this.PhoneBrand);
-            formData1.append('memory', this.PhoneMemory);
-            formData1.append('price',this.PhonePrice);
-            formData1.append('description',this.PhoneDescription);
-            formData1.append('color', this.PhoneColor);
-            formData1.append('productId', this.itemUpdated);
-            formData1.append('updated', true);
-            // console.log(formData1.price);
-            // console.log(this.PhoneInventory);
-            if (this.PhoneImage){
-              formData1.append('file', this.PhoneImage);
-              formData1.append('image', '');
-            } else{
-              formData1.append('file', '');
-              formData1.append('image', this.image);
-            };
-            axios.post("/products/addItem",formData1).
-            then(response => {
-              let res = response.data;
-              if (res.status == "0"){
-                this.editShow = false;
-                this.$emit("refresh");
-              } else{
-                this.editShow = true;
-              }
-            })
+                formData1.append('inventory', this.PhoneInventory);
+                formData1.append('name', this.PhoneName);
+                formData1.append('brand', this.PhoneBrand);
+                formData1.append('memory', this.PhoneMemory);
+                formData1.append('price',this.PhonePrice);
+                formData1.append('description',this.PhoneDescription);
+                formData1.append('color', this.PhoneColor);
+                formData1.append('productId', this.itemUpdated);
+                formData1.append('updated', true);
+                // console.log(formData1.price);
+                // console.log(this.PhoneInventory);
+                if (this.PhoneImage){
+                formData1.append('file', this.PhoneImage);
+                formData1.append('image', '');
+                } else{
+                formData1.append('file', '');
+                formData1.append('image', this.image);
+                };
+                axios.post("/products/addItem",formData1).
+                then(response => {
+                let res = response.data;
+                if (res.status == "0"){
+                    this.editShow = false;
+                    this.page= 1;
+                    this.getProductsList();                    
+                } else{
+                    this.editShow = true;
+                }
+                })
             },
           onFileSelected(event){
                 this.PhoneImage = event.target.files[0];
