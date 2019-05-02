@@ -234,14 +234,20 @@ router.post("/addItem",(req, res, next) => {
           })
         }else{
           console.log("this is the updated value"+req.body.updated);
-          if (req.body.updated === true){
+          if (req.body.updated){
+            console.log("this is entered the updated");
+            let image = '';
             if (req.body.image != ''){
               console.log("this is not updated");
+              image = req.body.image;
+            }
+            else{
+              console.log("this is update");
+              image = req.file.originalname;
+            }
               let inventory = req.body.inventory,
               name = req.body.name,
               brand = req.body.brand,
-              // image = req.file.originalname,
-              image = req.body.image,
               memory = req.body.memory,
               price = req.body.price,
               description = req.body.description,
@@ -271,9 +277,9 @@ router.post("/addItem",(req, res, next) => {
                   result:'this is 1'
                   });
                   }
-              })
-            }
+                  });
           }else{
+            console.log("this is new product");
             let product = new Product({
               inventory: req.body.inventory,
               name: req.body.name,

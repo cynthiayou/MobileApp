@@ -254,7 +254,7 @@
         },
         methods: {
             pageRefresh(){
-                this.page=1;
+                this.page= 1;
                 this.getProductsList();
             },
             getProductsList(flag){
@@ -392,10 +392,10 @@
             then(response => {
               let res = response.data;
               if (res.status == "0"){
-                this.addItemFlag = false;
+                this.editShow = false;
                 this.$emit("refresh");
               } else{
-                this.addItemFlag = true;
+                this.editShow = true;
               }
             })
             },
