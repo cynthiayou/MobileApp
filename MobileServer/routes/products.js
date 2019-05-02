@@ -274,7 +274,6 @@ router.post("/addItem",(req, res, next) => {
               })
             }
           }else{
-            console.log(req.body);
             let product = new Product({
               inventory: req.body.inventory,
               name: req.body.name,

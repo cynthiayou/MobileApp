@@ -3,7 +3,7 @@
     <nav-header>
 
     </nav-header>
-     
+
     <div class="container">
       <div class="cart">
         <div class="page-title-normal">
@@ -48,7 +48,7 @@
                         <span class="select-ipt">{{item.productNum}}</span>
                         <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
-                      <br> 
+                      <br>
                       <span style="font-style:italic; font-size: 0.8em">{{item.inventory}} in stock</span>
                     </div>
                   </div>
@@ -226,7 +226,7 @@
                     }else if(flag=='minu'){
                       num = -1;
                     }
- 
+
                 })
             },
             toggleCheckAll(){
@@ -244,11 +244,13 @@
                 })
             },
             checkOut(){
-                axios.post("/users/checkout",{ 
+                axios.post("/users/checkout",{
                 }).then((response)=>{
                     let res = response.data;
                     if(res.status=='0'){
+                      this.init();
                       alert("Checked out successfully!");
+
                     }else{
                       alert("Sorry, unable to check out this time!")
                     }

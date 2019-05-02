@@ -262,6 +262,10 @@
                       .show();
           },
 
+          checknull(){
+
+          },
+
           showPwdSpan2(){
             $("#pwdSpan2").text("Please confirm your password.")
                       .attr("class", "info")

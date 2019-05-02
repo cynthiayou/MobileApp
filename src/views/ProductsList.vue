@@ -13,7 +13,6 @@
                     <select class="form-control" id="brandFilter" name="brandFilter" @change="onBrandChange($event)">
                         <option value="all" selected="">All Brands</option>
                         <option value="iPhone">iPhone</option>
-                        <option value="Google">Google</option>
                         <option value="Samsung">Samsung</option>
                         <option value="Huawei">Huawei</option>
                     </select>
