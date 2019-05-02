@@ -47,11 +47,7 @@
                           <td style="text-align: left; font-size:0.8em;"><span id="priceSpan"></span></td>
                       </tr>
 
-                      <tr>
-                          <td style="text-align: left;"><label for="description">Description:</label></td>
-                          <td style="padding:0.3em; margin: 1em;"><textarea name="description" id="description" v-model="PhoneDescription"></textarea></td>
-                          <td style="text-align: left; font-size:0.8em;"><span id="descriptionSpan"></span></td>
-                      </tr>
+
                       <tr>
                           <td style="text-align: left;"><label for="memory">Memory</label></td>
                           <td style="padding:0.3em; margin: 1em;"><input type="text" name="memory" id="memory" v-model="PhoneMemory"></td>
@@ -61,20 +57,26 @@
                           <td style="text-align: left;"><label for="color">Color:</label></td>
                           <td style="padding:0.3em; margin: 1em;"><input type="text" name="color" id="color" v-model="PhoneColor"></td>
                           <td style="text-align: left; font-size:0.8em;"><span id="colorSpan"></span></td>
-                      </tr>               
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="inventory">Inventory:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="inventory" id="inventory" v-model="PhoneInventory"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="colorSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="description">Description:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><textarea name="description" id="description" v-model="PhoneDescription"></textarea></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="descriptionSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="image">Image:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="file" name="myImage" @change="onFileSelected"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="imageSpan"></span></td>
+                      </tr>
+
+                       
                   </table>
               </form>
-
-            <form action='products/addImage' method="POST"  enctype="multipart/form-data">
-              <table>
-                <tr>
-                 <td style="text-align: left;"><label for="image">Image:</label></td>
-                  <td style="padding:0.3em; margin: 1em;"><input type="file" name="myImage"></td>
-                  <td style="text-align: left; font-size:0.8em;"><span id="imageSpan"></span></td>
-                </tr>
-              </table>
-              <button type="submit" class="btn">Upload</button>
-            </form>
               </div>
               <div class="login-wrap">
                 <a href="javascript:void(0)" class="btn-login" @click="addItem">Add Item</a>
@@ -165,6 +167,7 @@
         name: 'NavHeader',
         data () {
             return {
+                PhoneInventory:'',
                 PhoneImage:'',
                 PhoneName: '',
                 PhoneBrand:'',
@@ -217,6 +220,7 @@
               if (res.status == "0"){
                 this.errorTip = false;
                 this.loginModalFlag = false;
+                this.addItemFlag = false;
                 this.userLoggedIn = res.result.userName;
                 if (this.userLoggedIn == "admin"){
                   this.adminFlag = true;
@@ -338,28 +342,33 @@
             })
           },
           addItem(){
-            axios.post("products/addItem",{
-              name: this.PhoneName,
-              brand: this.PhoneBrand,
-              memory: this.PhoneMemory,
-              price: this.PhonePrice,
-              description: this.PhoneDescription,
-              color: this.PhoneColor
-            }).then(response => {
-              console.log(response);
+            let formData = new FormData();
+            formData.append('inventory', this.PhoneInventory);
+            formData.append('file', this.PhoneImage);
+            formData.append('name', this.PhoneName);
+            formData.append('brand', this.PhoneBrand);
+            formData.append('memory', this.PhoneMemory);
+            formData.append('price',this.PhonePrice);
+            formData.append('description',this.PhoneDescription);
+            formData.append('color', this.PhoneColor);
+            formData.append('updated', false);
+            axios.post("products/addItem",formData).
+            then(response => {
+              let res = response.data;
+              if (res.status == "0"){
+                this.addItemFlag = false;
+                this.$emit("refresh");
+              } else{
+                this.addItemFlag = true;
+              }
             })
+
+
+
           },
           onFileSelected(event){
             this.PhoneImage = event.target.files[0];
           },
-          addImage(){
-            axios.post("products/addImage",{
-              image : this.PhoneImage
-            }).then(response => {
-              console.log(response);
-            })
-          }
-
         }
     }
 </script>

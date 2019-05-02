@@ -17,7 +17,7 @@ mongoose.connection.on("connected", () => {
 const storage = multer.diskStorage({
   destination: '../static/',
   filename: function(req, file, cb){
-    cb(null, file.fieldname + '-' +Date.now()+ path.extname(file.originalname));
+    cb(null, file.originalname);
   }
 })
 
@@ -29,7 +29,7 @@ const upload = multer({
     checkFileType(file, cb);
 
   }
-}).single('myImage');
+}).single('file');
 
 // Check File Type
 function checkFileType(file, cb){
@@ -47,6 +47,7 @@ function checkFileType(file, cb){
     cb('Error: Image Only!');
   }
 }
+
 
 router.get("/list", (req, res, next) => {
     let page = parseInt(req.param("page"));
@@ -152,7 +153,7 @@ router.post("/addCart", (req, res, next) => {
                                       "name": productDoc.name,
                                       "price": productDoc.price,
                                       "image": productDoc.image,
-                                      "inventory": productDoc.inventory,
+                                      "inventory": productDoc.inventory-1,
                                       "productNum": 1,
                                       "checked": 1
                                   });
@@ -219,57 +220,277 @@ router.post("/softDel", (req, res, next) => {
 });
 
 router.post("/addItem",(req, res, next) => {
-      // upload(req, res,(err) => {
-      //   if (err){
-      //     res.json({
-      //       status:'1',
-      //       msg: err,
-      //       resulte:'fails'
-      //     })
-      //   }else{
-      //     console.log(req.file);
-      //     res.send('test');
-      //   }
-      // });
-      var Phone = new Product({
-        name:req.body.name,
-        brand: req.body.brand,
-        memory: req.body.memory,
-        price:req.body.price,
-        description: req.body.description,
-        color: req.body.color
-      });
-      Phone.save(function(err){
+
+
+
+  console.log("add prams"+req.body);
+      upload(req, res,(err) => {
         if (err){
           res.json({
-              status: "1",
-              msg: err.message
+            status:'1',
+            msg: err,
+            resulte:'fails'
           })
-        }
-        else{
-          res.json({
-              status: "0",
-              msg: '',
-              result:'success'
-          })
+        }else{
+          console.log("this is the updated"+req.body.updated);
+          if (req.body.updated){
+            if (req.body.image != ''){
+              console.log("this is not updated");
+              let inventory = req.body.inventory,
+              name = req.body.name,
+              brand = req.body.brand,
+              // image = req.file.originalname,
+              image = req.body.image,
+              memory = req.body.memory,
+              price = req.body.price,
+              description = req.body.description,
+              color = req.body.color;
+              productId = req.body.productId;
+              Product.updateOne({"_id":productId},{
+                  $set: {"inventory": inventory,
+                          "name":name,
+                          "brand":brand,
+                          "image": image,
+                          "memory": memory,
+                          "price":price,
+                          "description": description,
+                          "color": color
+                        }
+              }, (err, doc) => {
+                  if(err){
+                  res.json({
+                  status:'1',
+                  msg:err.message,
+                  result:''
+                  });
+                  } else{
+                  res.json({
+                  status:'0',
+                  msg:'',
+                  result:'this is 1'
+                  });
+                  }
+              })
+            }
+          }else{
+            let product = new Product({
+              inventory: req.body.inventory,
+              name: req.body.name,
+              brand: req.body.brand,
+              image: req.file.originalname,
+              memory: req.body.memory,
+              price: req.body.price,
+              description: req.body.description,
+              color: req.body.color
+            });
+            product.save(function(err, doc){
+              if (err){
+                res.json({
+                    status: "1",
+                    msg: err.message
+                });
+              }
+              else{
+                res.json({
+                    status: "0",
+                    msg: '',
+                    result:'success'
+                })
+              }
+            });
+          }
+
+
         }
       });
+});
+
+
+
+
+
+
+router.get("/getProduct", (req, res, next) => {
+    console.log(req.param);
+    let productId = req.param("productId");
+    Product.findOne({_id: productId},(err, productDoc) => {
+        if (err){
+          res.json({
+          status: "1",
+          msg: err.message
+          })
+        } else {
+        if (productDoc){
+          res.json({
+          status: "0",
+          msg: '',
+          result: {
+            product: productDoc
+            }
+          })
+        } else{
+          res.json({
+          status: "1",
+          msg: 'Product not found',
+        })
+  }
+  }
+  });
+});
+
+
+
+
+
+  router.post("/update", (req, res, next) => {
+    console.log(req);
+    // console.log(req.body);
+    // console.log(req.file);
+    if (req.body.image == ''){
+      upload(req, res,(err) => {
+
+        if (err){
+          res.json({
+            status:'1',
+            msg: err,
+            resulte:'fails'
+          })
+        }else{
+          let inventory = req.body.inventory,
+            name = req.body.name,
+            brand = req.body.brand,
+            image = req.file.originalname,
+            // image = req.body.image,
+            memory = req.body.memory,
+            price = req.body.price,
+            description = req.body.description,
+            color = req.body.color;
+            productId = req.body.productId;
+            Product.updateOne({"_id":productId},{
+                $set: {"inventory": inventory,
+                        "name":name,
+                        "brand":brand,
+                        "image": image,
+                        "memory": memory,
+                        "price":price,
+                        "description": description,
+                        "color": color
+                      }
+            }, (err, doc) => {
+                if(err){
+                res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+                });
+                } else{
+                res.json({
+                status:'0',
+                msg:'',
+                result:'this is 1'
+                });
+                }
+            })
+          }
+    });
+    }
+    else{
+      let inventory = req.body.inventory,
+            name = req.body.name,
+            brand = req.body.brand,
+            // image = req.file.originalname,
+            image = req.body.image,
+            memory = req.body.memory,
+            price = req.body.price,
+            description = req.body.description,
+            color = req.body.color;
+            productId = req.body.productId;
+            console.log("productid: " + productId);
+            Product.updateOne({"_id":productId},{
+                $set: {"inventory": inventory,
+                        "name":name,
+                        "brand":brand,
+                        "image": image,
+                        "memory": memory,
+                        "price":price,
+                        "description": description,
+                        "color": color
+                      }
+            }, (err, doc) => {
+              console.log(doc);
+                if(err){
+                res.json({
+                status:'1',
+                msg:err.message,
+                result:''
+                });
+                } else{
+                res.json({
+                status:'0',
+                msg:'',
+                result:'this is 2'
+                });
+                }
+            })
+
+    }
+
+
 
 });
-router.post('/addImage', function(req, res){
-    upload(req, res, (err) => {
-      if (err){
-        res.json({
-          status:'1',
-          msg: err,
-          resulte:'fails'
-        })
-      }else{
-        console.log(req.file);
-        res.send('test');
-      }
-    });
-});
+
+
+
+
+
+
+
+
+
+
+  // router.post("/update", (req, res, next) => {
+  //   console.log(req.body);
+  // let inventory = req.body.inventory,
+  // name = req.body.name,
+  // brand = req.body.brand,
+  // image = req.file.originalname,
+  // memory = req.body.memory,
+  // price = req.body.price,
+  // description = req.body.description,
+  // color = req.body.color;
+  // productId = req.body.productId;
+
+  // Product.updateOne({"_id":productId},{
+  // $set: {"inventory": inventory,
+  // "name":name,
+  // "brand":brand,
+  // "image": image,
+  // "memory": memory,
+  // "price":price,
+  // "description": description,
+  // "color": color
+  // }
+  // }, (err, doc) => {
+  // if(err){
+  // res.json({
+  // status:'1',
+  // msg:err.message,
+  // result:''
+  // });
+  // } else{
+  // res.json({
+  // status:'0',
+  // msg:'',
+  // result:'suc'
+  // });
+  // }
+  // })
+
+  // });
+
+
+
+
 
 
 

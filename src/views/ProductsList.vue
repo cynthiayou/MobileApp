@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin"></nav-header>
+        <nav-header v-on:admin="isAdmin" v-on:notAdmin="notAdmin" v-on:refresh="pageRefresh"></nav-header>
         <div class="accessory-result-page accessory-page">
             <div class="container">
                 <div class="filter-nav">
@@ -52,7 +52,7 @@
                                         <div class="color">Color:{{item.color}}</div>
                                         <div class="inventory">Qty in stock:{{item.inventory}}</div>
                                         <div>
-                                            <button v-show="adminFlagPar" type="button" class="btn btn-xs" >Edit</button>
+                                            <button v-show="adminFlagPar" type="button" class="btn btn-xs" @click="edit(item._id)" >Edit</button>
                                             <button v-show="adminFlagPar" type="button" class="btn btn-xs"  @click="delConfirm(item)">Delete</button>
                                         </div>
                                         <div class="btn-area">
@@ -80,7 +80,91 @@
             <div slot="btnGroup">
                 <a class="btn btn--m" href="javascript:;" @click="mdOutOfStock=false">Close</a>
             </div>
-        </modal>
+        </modal >
+
+
+
+
+
+      <div class="md-modal modal-msg md-modal-transition" style="weight:auto height:auto;" v-bind:class="{'md-show':editShow}">
+          <div class="md-modal-inner">
+            <div class="md-top">
+                <div class='md-title'>Update Item</div>
+                <button class="md-close" @click="editShow=false">Close</button>
+            </div>
+            <div class="md-content">
+              <div class="confirm-tips">
+                <form class="addItem">
+                  <table>
+                      <tr>
+                          <td style="text-align: left;"><label for="name">Name:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="name" id="name" v-model="PhoneName"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="phoneNameSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="brand">Brand:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="brand" id="brand" v-model="PhoneBrand"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="brandSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="price">Price:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="price" id="price" v-model="PhonePrice"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="priceSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="memory">Memory</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="memory" id="memory" v-model="PhoneMemory"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="descriptionSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="color">Color:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="color" id="color" v-model="PhoneColor"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="colorSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="inventory">Inventory:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="text" name="inventory" id="inventory" v-model="PhoneInventory"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="colorSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="description">Description:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><textarea name="description" id="description" v-model="PhoneDescription"></textarea></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="descriptionSpan"></span></td>
+                      </tr>
+                      <tr>
+                          <td style="text-align: left;"><label for="image">Image:</label></td>
+                          <td style="padding:0.3em; margin: 1em;"><input type="file" name="myImage"  @change="onFileSelected"></td>
+                          <td style="text-align: left; font-size:0.8em;"><span id="imageSpan"></span></td>
+                      </tr>
+
+                       
+                  </table>
+              </form>
+              </div>
+              <div class="login-wrap">
+                <a href="javascript:void(0)" class="btn-login" @click="update" >Update Item</a>
+              </div>
+            </div>
+            </div>
+        </div>
+          <div class="md-overlay" v-if="editShow" @click="editShow=false"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
             <h3 slot="message">
                 <svg class="icon-status-ok">
@@ -115,10 +199,21 @@
     export default {
         data () {
             return {
+                itemUpdated: '',
+                PhoneInventory:'',
+                image:'',
+                PhoneImage:'',
+                PhoneName: '',
+                PhoneBrand:'',
+                PhoneMemory:'',
+                PhonePrice:'',
+                PhoneDescription:'',
+                PhoneColor:'',
                 productsList:[],
                 sortFlag: true,
                 page:1,
                 pageSize:8,
+                editShow:false,
                 busy:true,
                 show:true,
                 loading:false,
@@ -153,6 +248,10 @@
                 this.getProductsList();
         },
         methods: {
+            pageRefresh(){
+                this.page=1;
+                this.getProductsList();
+            },
             getProductsList(flag){
                 let param = {
                     page: this.page,
@@ -238,6 +337,88 @@
                     }
                 });
             },
+            edit(id){
+              this.editShow = true;
+              this.itemUpdated = id;
+              axios.get("/products/getProduct",{
+                params:{
+                  productId: id
+                }
+              }).then(
+               (response)=>{
+                    var res = response.data;
+                    if(res.status=="0"){
+                      console.log(response.data);
+                      var product = res.result.product;
+                      this.PhoneName = product.name;
+                      this.PhoneInventory = product.inventory;
+                      this.PhoneBrand = product.brand;
+                      this.PhonePrice = product.price;
+                      this.PhoneMemory = product.memory;
+                      this.PhoneDescription = product.description;
+                      this.PhoneColor = product.color;
+                      this.image = product.image;
+                      }
+                }
+              )
+            },
+            update(){
+              let formData1 = new FormData();
+            formData1.append('inventory', this.PhoneInventory);
+
+            formData1.append('name', this.PhoneName);
+            formData1.append('brand', this.PhoneBrand);
+            formData1.append('memory', this.PhoneMemory);
+            formData1.append('price',this.PhonePrice);
+            formData1.append('description',this.PhoneDescription);
+            formData1.append('color', this.PhoneColor);
+            formData1.append('productId', this.itemUpdated);
+            formData1.append('updated', true);
+
+            // console.log(formData1.price);
+            // console.log(this.PhoneInventory);
+            if (this.PhoneImage){
+              formData1.append('file', this.PhoneImage);
+              formData1.append('image', '');
+            } else{
+              formData1.append('file', '');
+              formData1.append('image', this.image);
+            };
+
+            // axios.post("/products/update",{
+            //   name: this.PhoneName,
+            //   brand: this.PhoneBrand,
+            //   memory: this.PhoneMemory,
+            //   price: this.PhonePrice,
+            //   description: this.PhoneDescription,
+            //   inventory: this.PhoneInventory,
+            //   image: this.image,
+            //   file: this.PhoneImage,
+            //   color: this.PhoneColor,
+            //   productId: this.itemUpdated
+            // })
+
+
+            axios.post("/products/addItem",formData1,
+            // {
+            //   // headers:{
+            //   //   'Content-Type':'multipart/form-data; boundary=${formData1._boundary}'
+            //   // },
+            // }
+            ).
+            then(response => {
+              let res = response.data;
+              if (res.status == "0"){
+                this.addItemFlag = false;
+                this.$emit("refresh");
+              } else{
+                this.addItemFlag = true;
+              }
+            })
+            },
+          onFileSelected(event){
+                this.PhoneImage = event.target.files[0];
+          },
             closeModal(){
                 this.mdShow = false;
                 this.mdShowCart = false;
