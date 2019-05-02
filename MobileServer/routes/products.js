@@ -74,7 +74,11 @@ router.get("/list", (req, res, next) => {
         }
     }
     if (keyword){
-      params['name'] = {$regex: new RegExp(keyword, "i")}
+      if (keyword == "samsung" ||keyword == "Samsung"  ){
+        params['name'] = {$regex: new RegExp("Galaxy", "i")}
+      } else{
+        params['name'] = {$regex: new RegExp(keyword, "i")}
+      }      
     }
 
     if (brand != "all"){
