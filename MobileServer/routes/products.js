@@ -233,8 +233,8 @@ router.post("/addItem",(req, res, next) => {
             resulte:'fails'
           })
         }else{
-          console.log("this is the updated"+req.body.updated);
-          if (req.body.updated){
+          console.log("this is the updated value"+req.body.updated);
+          if (req.body.updated === true){
             if (req.body.image != ''){
               console.log("this is not updated");
               let inventory = req.body.inventory,

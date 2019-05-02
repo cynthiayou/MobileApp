@@ -372,7 +372,6 @@
             update(){
               let formData1 = new FormData();
             formData1.append('inventory', this.PhoneInventory);
-
             formData1.append('name', this.PhoneName);
             formData1.append('brand', this.PhoneBrand);
             formData1.append('memory', this.PhoneMemory);
@@ -381,7 +380,6 @@
             formData1.append('color', this.PhoneColor);
             formData1.append('productId', this.itemUpdated);
             formData1.append('updated', true);
-
             // console.log(formData1.price);
             // console.log(this.PhoneInventory);
             if (this.PhoneImage){
@@ -391,28 +389,7 @@
               formData1.append('file', '');
               formData1.append('image', this.image);
             };
-
-            // axios.post("/products/update",{
-            //   name: this.PhoneName,
-            //   brand: this.PhoneBrand,
-            //   memory: this.PhoneMemory,
-            //   price: this.PhonePrice,
-            //   description: this.PhoneDescription,
-            //   inventory: this.PhoneInventory,
-            //   image: this.image,
-            //   file: this.PhoneImage,
-            //   color: this.PhoneColor,
-            //   productId: this.itemUpdated
-            // })
-
-
-            axios.post("/products/addItem",formData1,
-            // {
-            //   // headers:{
-            //   //   'Content-Type':'multipart/form-data; boundary=${formData1._boundary}'
-            //   // },
-            // }
-            ).
+            axios.post("/products/addItem",formData1).
             then(response => {
               let res = response.data;
               if (res.status == "0"){
