@@ -191,7 +191,9 @@
                   let res = response.data;
                   if(res.status == '0'){
                     this.modalConfirm = false;
-                    this.init();
+                    this.$router.push({
+                        path:"/"
+                      });
                     // this.$store.commit("updateCartCount",-this.delItem.productNum);
                   }
               });
